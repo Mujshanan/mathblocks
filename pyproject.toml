@@ -21,9 +21,6 @@ marimo = ["marimo>=0.10"]
 [tool.hatch.build.targets.wheel]
 packages = ["src/mathblocks"]
 
-[tool.hatch.build.targets.wheel.force-include]
-"src/mathblocks/static" = "mathblocks/static"
-
 [tool.hatch.build.targets.sdist.force-include]
 "src/mathblocks/static" = "src/mathblocks/static"
 
