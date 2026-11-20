@@ -1,12 +1,24 @@
 """Shared AnyWidget adapter base.
 
-The adapter owns transport and lifecycle, not component semantics.
+AnyWidget owns transport and view lifecycle. MathBlocks owns the state contract.
 """
 
+from __future__ import annotations
+
+from copy import deepcopy
 from pathlib import Path
+from typing import Any
 
 import anywidget
 import traitlets
+
+from mathblocks.core.serialization import (
+    PYTHON_ACTOR,
+    StateContractError,
+    compare_state_versions,
+    make_state_envelope,
+    validate_state_envelope,
+)
 
 
 _STATIC_DIR = Path(__file__).resolve().parents[1] / "static"
@@ -31,15 +43,67 @@ export default { render };
 
 
 class MathBlocksWidget(anywidget.AnyWidget):
-    """Minimal shared widget base for MathBlocks components.
+    """Reusable synchronized widget base for MathBlocks components.
 
-    component_state is the versioned JSON-compatible state envelope shared
-    with the frontend. Component-specific Python classes can extend this base
-    with validated traits as their contracts are defined.
+    The single state trait is the wire-format boundary. component_state is a
+    Python convenience property exposing only its user data.
     """
 
     _esm = _read_asset("index.js", _FALLBACK_ESM)
     _css = _read_asset("frontend.css")
 
-    schema_version = traitlets.Int(1).tag(sync=True)
-    component_state = traitlets.Dict(default_value={}).tag(sync=True)
+    state = traitlets.Dict(default_value=make_state_envelope({})).tag(sync=True)
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self._accepted_state = deepcopy(self.state)
+        self._restoring_state = False
+        self.observe(self._on_state_change, names="state")
+
+    @traitlets.validate("state")
+    def _validate_state(self, proposal: dict[str, Any]) -> dict[str, Any]:
+        try:
+            return validate_state_envelope(proposal["value"])
+        except StateContractError as exc:
+            raise traitlets.TraitError(str(exc)) from exc
+
+    @traitlets.observe("state")
+    def _on_state_change(self, change: dict[str, Any]) -> None:
+        if self._restoring_state:
+            return
+        incoming = change["new"]
+        if compare_state_versions(incoming, self._accepted_state) <= 0:
+            self._restoring_state = True
+            try:
+                self.set_trait("state", deepcopy(self._accepted_state))
+            finally:
+                self._restoring_state = False
+            return
+        self._accepted_state = deepcopy(incoming)
+
+    @property
+    def schema_version(self) -> int:
+        """Current component-state schema version."""
+        return self.state["schema_version"]
+
+    @property
+    def revision(self) -> int:
+        """Current accepted state revision."""
+        return self.state["revision"]
+
+    @property
+    def component_state(self) -> dict[str, Any]:
+        """Detached JSON-compatible component data."""
+        return deepcopy(self.state["data"])
+
+    @component_state.setter
+    def component_state(self, value: dict[str, Any]) -> None:
+        self.set_component_state(value)
+
+    def set_component_state(self, value: dict[str, Any]) -> None:
+        """Replace component data and publish a new Python-originated revision."""
+        self.state = make_state_envelope(
+            value,
+            revision=self._accepted_state["revision"] + 1,
+            actor=PYTHON_ACTOR,
+        )
