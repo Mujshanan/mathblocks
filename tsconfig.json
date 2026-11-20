@@ -18,6 +18,8 @@
   },
   "include": [
     "frontend/src/**/*.ts",
-    "vite.config.ts"
+    "tests/frontend/**/*.ts",
+    "vite.config.ts",
+    "vitest.config.ts"
   ]
 }
