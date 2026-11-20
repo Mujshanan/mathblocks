@@ -4,7 +4,7 @@
 - **Date:** 2026-11-20
 - **Decision owners:** MathBlocks maintainers
 - **Scope:** Python–frontend state ownership, synchronization, update consistency, component identity, and widget/view lifecycle
-- **Related decisions:** ADR-001 (AnyWidget Component Architecture), ADR-002 (Canonical Mathematical Expression Representation), ADR-003 (proposed computation boundary; expression evaluation only)
+- **Related decisions:** ADR-001 (AnyWidget Component Architecture), ADR-002 (Canonical Mathematical Expression Representation), ADR-003 (accepted expression evaluation contract; single-expression evaluation only)
 
 ## Context
 
