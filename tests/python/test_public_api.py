@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import re
+import subprocess
+import sys
 from importlib.metadata import version
 
 import mathblocks
@@ -32,7 +34,17 @@ def test_package_version_is_pep440_and_matches_distribution_metadata() -> None:
     assert version("mathblocks") == mathblocks.__version__
 
 
-def test_optional_marimo_adapter_is_not_loaded_by_package_import() -> None:
-    # Importing the package root must not make the optional host dependency
-    # mandatory. The adapter is imported explicitly from mathblocks.integrations.
-    assert "marimo" not in __import__("sys").modules
+def test_importing_package_root_does_not_import_optional_marimo() -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import sys, mathblocks; "
+            "assert 'marimo' not in sys.modules; "
+            "assert hasattr(mathblocks, 'Math')",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
