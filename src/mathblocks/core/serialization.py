@@ -45,8 +45,8 @@ def normalize_json_object(value: Any) -> dict[str, Any]:
     """Return a detached JSON-compatible object with finite, safe numeric values."""
     if not isinstance(value, dict):
         raise StateContractError("Component state must be a JSON object.")
-    _validate_json_value(value)
     try:
+        _validate_json_value(value)
         encoded = json.dumps(
             value,
             ensure_ascii=False,
