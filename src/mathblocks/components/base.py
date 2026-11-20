@@ -11,8 +11,12 @@ class ComponentWidget(MathBlocksWidget):
     """AnyWidget component whose domain fields live inside the Phase 1 state envelope."""
 
     def __init__(self, *, component: str, value: Any, **fields: Any) -> None:
-        data = {"component": component, "value": value, **fields}
+        data = {"component": component, "value": self._validate_value(value), **fields}
         super().__init__(state=make_state_envelope(data))
+
+    def _validate_value(self, value: Any) -> Any:
+        """Normalize/validate a component value before publishing it."""
+        return value
 
     @property
     def value(self) -> Any:
@@ -21,4 +25,4 @@ class ComponentWidget(MathBlocksWidget):
 
     @value.setter
     def value(self, value: Any) -> None:
-        self.set_component_state({**self.component_state, "value": value})
+        self.set_component_state({**self.component_state, "value": self._validate_value(value)})
