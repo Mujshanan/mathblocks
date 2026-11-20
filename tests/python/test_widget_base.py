@@ -110,6 +110,8 @@ def test_python_wins_equal_revision_conflict() -> None:
     "invalid_state",
     [
         {"schema_version": 2, "revision": 0, "actor": "python", "data": {}},
+        {"schema_version": 1.0, "revision": 0, "actor": "python", "data": {}},
+        {"schema_version": 1, "revision": True, "actor": "python", "data": {}},
         {"schema_version": 1, "revision": -1, "actor": "python", "data": {}},
         {"schema_version": 1, "revision": 0, "actor": "", "data": {}},
         {"schema_version": 1, "revision": 0, "actor": "python", "data": []},
