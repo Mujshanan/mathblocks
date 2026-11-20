@@ -4,87 +4,95 @@ import {
   createViewActorId,
 } from "./synchronization";
 import type { AnyWidgetModel, JsonObject } from "./model";
+import { mountMath } from "../components/math";
+import { mountText } from "../components/text";
+import { mountResult } from "../components/result";
 
-/** Initialize one independently managed MathBlocks frontend view. */
-export function renderMathBlocks(
-  root: HTMLElement,
-  model: AnyWidgetModel,
-): () => void {
+/** Render the component selected by the current synchronized domain state. */
+export function renderMathBlocks(root: HTMLElement, model: AnyWidgetModel): () => void {
   root.classList.add("mathblocks-root");
   root.dataset.mathblocksReady = "true";
 
-  const panel = document.createElement("section");
-  panel.className = "mathblocks-state-panel";
-
-  const heading = document.createElement("h3");
-  heading.className = "mathblocks-state-title";
-  heading.textContent = "MathBlocks · synchronized state";
-
-  const description = document.createElement("p");
-  description.className = "mathblocks-state-description";
-  description.textContent =
-    "Edit this JSON object and apply it. Changes synchronize with Python and other views.";
-
-  const editor = document.createElement("textarea");
-  editor.className = "mathblocks-state-editor";
-  editor.setAttribute("aria-label", "Component state JSON");
-  editor.spellcheck = false;
-
-  const actions = document.createElement("div");
-  actions.className = "mathblocks-state-actions";
-
-  const applyButton = document.createElement("button");
-  applyButton.className = "mathblocks-state-apply";
-  applyButton.type = "button";
-  applyButton.textContent = "Apply state";
-
-  const status = document.createElement("output");
-  status.className = "mathblocks-state-status";
-  status.setAttribute("aria-live", "polite");
-
-  actions.append(applyButton, status);
-  panel.append(heading, description, editor, actions);
-  root.replaceChildren(panel);
-
   const actor = createViewActorId();
-  const unsubscribe = attachStateSync(model, (data, envelope) => {
-    editor.value = JSON.stringify(data, null, 2);
-    status.textContent = `Synced · revision ${envelope.revision}`;
-    status.dataset.state = "synced";
-  });
+  let currentData: JsonObject = {};
+  let localCommitInProgress = false;
+  let cleanupComponent: (() => void) | undefined;
 
-  const apply = (): void => {
-    try {
-      const parsed: unknown = JSON.parse(editor.value);
-      if (
-        typeof parsed !== "object" ||
-        parsed === null ||
-        Array.isArray(parsed)
-      ) {
-        throw new TypeError("The component state must be a JSON object.");
-      }
-      commitState(model, parsed as JsonObject, actor);
-      status.textContent = "Update sent";
-      status.dataset.state = "synced";
-    } catch (error) {
-      status.textContent =
-        error instanceof Error ? error.message : "Unable to apply state.";
-      status.dataset.state = "error";
+  const renderComponent = (data: JsonObject): void => {
+    cleanupComponent?.();
+    cleanupComponent = undefined;
+    currentData = data;
+
+    const label = stringValue(data.label);
+    const component = data.component;
+    if (component === "math") {
+      cleanupComponent = mountMath(root, {
+        value: stringValue(data.value) ?? "",
+        readOnly: data.read_only === true,
+        label,
+        onChange: (value) => {
+          const next = { ...currentData, value } as JsonObject;
+          currentData = next;
+          // commitState emits a synchronous Backbone change event. Do not
+          // remount MathLive for our own keystroke: it would reset the caret.
+          localCommitInProgress = true;
+          try {
+            commitState(model, next, actor);
+          } finally {
+            localCommitInProgress = false;
+          }
+        },
+      }).destroy;
+      return;
     }
+
+    if (component === "text") {
+      mountText(root, {
+        value: stringValue(data.value) ?? "",
+        label,
+        tone: textTone(data.tone),
+      });
+      return;
+    }
+
+    if (component === "result") {
+      mountResult(root, {
+        value: data.value,
+        unit: stringValue(data.unit),
+        error: stringValue(data.error),
+        diagnostics: Array.isArray(data.diagnostics)
+          ? data.diagnostics.filter((item): item is string => typeof item === "string")
+          : undefined,
+        label,
+      });
+      return;
+    }
+
+    root.replaceChildren();
+    const message = document.createElement("p");
+    message.setAttribute("role", "status");
+    message.textContent = "Unsupported MathBlocks component state.";
+    root.append(message);
   };
 
-  applyButton.addEventListener("click", apply);
+  const unsubscribe = attachStateSync(model, (data) => {
+    if (localCommitInProgress) {
+      currentData = data;
+      return;
+    }
+    renderComponent(data);
+  });
 
   return () => {
     unsubscribe();
-    applyButton.removeEventListener("click", apply);
+    cleanupComponent?.();
     root.replaceChildren();
     root.classList.remove("mathblocks-root");
     delete root.dataset.mathblocksReady;
   };
 }
 
-/** AnyWidget frontend module entry point. */
+/** AnyWidget frontend module entry point; cleanup follows its per-view signal. */
 export default {
   render({
     el,
@@ -103,3 +111,12 @@ export default {
     signal.addEventListener("abort", cleanup, { once: true });
   },
 };
+
+function stringValue(value: unknown): string | undefined {
+  return typeof value === "string" ? value : undefined;
+}
+
+function textTone(value: unknown): "default" | "muted" | "note" | "warning" {
+  if (value === "muted" || value === "note" || value === "warning") return value;
+  return "default";
+}

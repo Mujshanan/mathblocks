@@ -1,3 +1,4 @@
+import "katex/dist/katex.min.css";
 import "./styles/index.css";
 
 /** Public AnyWidget module and named frontend entry point. */
