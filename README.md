@@ -44,17 +44,17 @@ equation
 matrix
 ```
 
-In Jupyter, AnyWidget components are displayed by returning or displaying the widget. In Marimo, the optional adapter is intended to provide a concise integration:
+In Jupyter, a component is displayed directly. In Marimo, the same component instance is wrapped by Marimo's AnyWidget adapter:
 
 ```python
 import marimo as mo
 from mathblocks import Math
 
 equation = Math(r"\int_0^1 x^2\,dx")
-mo.ui.anywidget(equation.widget)
+mo.ui.anywidget(equation)
 ```
 
-The exact public API will be documented when the first stable component contracts are implemented.
+The exact public API will be documented when the first stable component contracts are implemented. See [ADR-001](docs/architecture/decisions/ADR-001-anywidget-component-architecture.md) for the proposed component/widget model and [ADR-002](docs/architecture/decisions/ADR-002-expression-representation.md) for the proposed expression representation.
 
 ## Planned components
 
@@ -94,7 +94,7 @@ Python application / notebook
 ### Responsibilities
 
 - **Python core:** public component APIs, domain models, validation, serialization, and Python-side state.
-- **Component layer:** focused Python wrappers and component-specific contracts.
+- **Component layer:** public component classes, each implemented as a `MathBlocksWidget` subclass, with component-specific contracts.
 - **AnyWidget adapter:** transport and lifecycle integration between Python and the browser.
 - **TypeScript frontend:** editing, rendering, keyboard interaction, and local presentation state.
 - **Host integrations:** optional conveniences for environments such as Marimo. Host-specific behavior must not leak into the core package.
