@@ -122,6 +122,18 @@ def test_non_json_values_are_rejected() -> None:
         widget.component_state = {"not_json": object()}
 
 
+def test_unsafe_integers_and_cyclic_values_are_rejected() -> None:
+    widget = MathBlocksWidget()
+
+    with pytest.raises(TraitError):
+        widget.component_state = {"unsafe": 2**53}
+
+    cyclic: dict = {}
+    cyclic["self"] = cyclic
+    with pytest.raises(TraitError):
+        widget.component_state = cyclic
+
+
 def test_widget_has_frontend_module() -> None:
     widget = MathBlocksWidget()
 
