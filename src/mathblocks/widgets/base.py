@@ -15,6 +15,7 @@ class MathBlockWidget(anywidget.AnyWidget):
     """Base widget with a versioned, JSON-compatible state contract."""
 
     _esm = _STATIC / "index.js"
+    _css = _STATIC / "index.css"
     state = Dict(default_value={}).tag(sync=True)
 
     def __init__(self, *, component: str, value: Any, **options: Any) -> None:
