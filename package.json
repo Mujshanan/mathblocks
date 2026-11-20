@@ -1,0 +1,20 @@
+{
+  "name": "@mathblocks/frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "typescript": "^5.7.0"
+  },
+  "dependencies": {
+    "anywidget": "^0.9.0",
+    "katex": "^0.16.11",
+    "mathlive": "^0.104.0"
+  }
+}
