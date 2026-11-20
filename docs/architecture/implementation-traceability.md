@@ -29,6 +29,8 @@
 
 The most substantial completed foundation is the shared AnyWidget/state transport layer. The largest unimplemented domain foundations are canonical expression data and persistent document identity/modeling.
 
+**P0 progress:** The committed npm lockfile and lockfile-based CI are complete. Kernel-backed notebook display and frontend view abort/reconnect tests pass. P0 is not fully closed: a real JupyterLab/Notebook browser test is still needed to verify DOM rendering and host-managed output removal/disposal.
+
 ## Detailed traceability
 
 ### ADR-001 — AnyWidget component architecture
@@ -120,6 +122,7 @@ The following dependencies should guide implementation order:
 |---|---|---|---|
 | P0 | Commit the frontend dependency lockfile and verify deterministic CI install | ADR-001 | **Complete:** `package-lock.json` committed; CI uses `npm ci`; run [44769265930](https://github.com/Mujshanan/mathblocks/actions/runs/44769265930) passed. |
 | P0 | Add kernel-backed notebook display and frontend view-lifecycle tests | ADR-001, ADR-004 | **Implemented:** notebook kernel emits real widget-view MIME descriptors; frontend test verifies two views, independent abort cleanup, reconnect, and retained model state. CI run [44769395392](https://github.com/Mujshanan/mathblocks/actions/runs/44769395392) is the validation run for this commit. |
+| P0 | Add real JupyterLab/Notebook browser-host end-to-end coverage | ADR-001, ADR-004 | **Open:** browser test must prove actual DOM rendering, two live views, output removal, reconnect, and cleanup without destroying Python component state. |
 | P1 | Implement canonical expression types, schema, operator catalogue, and validation | ADR-002 | Versioned expression fixtures; positive/negative validation and deterministic round-trip tests. |
 | P1 | Implement component/document IDs, ordered document model, registry, and migrations | ADR-005 | Document save/restore, unknown component preservation, copy/move identity tests. |
 | P2 | Specify request/result/diagnostic schemas and capability contract | ADR-003 | Versioned JSON schemas and conformance fixtures; stale-result tests. |
