@@ -3,7 +3,7 @@
 - **Status:** Working implementation audit
 - **Last reviewed:** 2026-11-20
 - **Architecture baseline:** `foundation/phase-0-ci-packaging`
-- **Implementation candidate reviewed:** cumulative Phase 1–5 pull-request stack, ending at PR #5 head `78584e7de99612e2c9918ffae869528607d46c3d`
+- **Implementation candidate reviewed:** cumulative Phase 1–5 pull-request stack, ending at PR #5 head `78584e7de99612e2c9918ffae869528607d46c3d`, plus P0 foundation changes through commit `12e878649056938e09b02bc984afa4f7caf8876e` on this branch.
 - **Scope:** Trace accepted ADR-001 through ADR-005 requirements to implementation evidence, tests, and remaining work.
 
 > This matrix distinguishes accepted architectural decisions from implemented behavior. The phase pull requests are still open and unmerged. “Implemented” means evidence exists in the reviewed candidate branch; it does not mean that code has been merged or released. “Not verified” means the available code or tests do not establish the requirement.
@@ -21,10 +21,10 @@
 
 | ADR | Decision area | Status | Main finding |
 |---|---|---|---|
-| [ADR-001](decisions/ADR-001-anywidget-component-architecture.md) | AnyWidget component architecture | **Partial** | Shared AnyWidget base, public components, bundled-asset build and host adapters exist in the phase stack; complete real-host lifecycle verification remains incomplete. |
+| [ADR-001](decisions/ADR-001-anywidget-component-architecture.md) | AnyWidget component architecture | **Partial** | Shared AnyWidget base, public components, bundled assets, lockfile-based CI, real Jupyter-kernel display checks, and AFM view lifecycle tests exist; browser-host end-to-end verification remains incomplete. |
 | [ADR-002](decisions/ADR-002-expression-representation.md) | Canonical expression representation | **Not implemented** | The Math component still stores LaTeX as its value; no MathBlocks-owned canonical expression envelope/operator validator was found. |
 | [ADR-003](decisions/ADR-003-expression-evaluation-contract.md) | Single-expression evaluation boundary | **Partial** | Result presentation primitives exist, but no request/response schema, capability contract, or evaluator adapter exists. |
-| [ADR-004](decisions/ADR-004-state-synchronization-and-lifecycle.md) | State synchronization and lifecycle | **Partial** | Versioned atomic state, deterministic conflict policy, detached Python state, and frontend store tests exist; full multi-view and real notebook lifecycle evidence remains incomplete. |
+| [ADR-004](decisions/ADR-004-state-synchronization-and-lifecycle.md) | State synchronization and lifecycle | **Partial** | Versioned atomic state, deterministic conflict policy, detached Python state, real notebook-kernel display checks, and per-view abort/reconnect tests exist; browser-host lifecycle verification remains incomplete. |
 | [ADR-005](decisions/ADR-005-component-identity-document-model-and-persistence.md) | Component identity, document model, persistence | **Not implemented** | Components have typed payloads, but no ordered document model, stable component/document IDs, registry, or document serialization/migration layer was found. |
 
 The most substantial completed foundation is the shared AnyWidget/state transport layer. The largest unimplemented domain foundations are canonical expression data and persistent document identity/modeling.
@@ -38,13 +38,13 @@ The most substantial completed foundation is the shared AnyWidget/state transpor
 | Requirement | Implementation evidence | Tests / verification | Status | Remaining work |
 |---|---|---|---|---|
 | Shared `MathBlocksWidget` derives from AnyWidget and owns synchronized transport | `src/mathblocks/widgets/base.py` | `tests/python/test_widget_base.py`; `tests/integration/test_anywidget_hosts.py` | **Implemented** | Keep component classes on this shared base. |
-| Public component classes are directly displayable widgets; no nested widget wrapper | Component classes inherit through `ComponentWidget` → `MathBlocksWidget` | AnyWidget host smoke test covers public components | **Implemented** | Add actual notebook display/lifecycle coverage. |
+| Public component classes are directly displayable widgets; no nested widget wrapper | Component classes inherit through `ComponentWidget` → `MathBlocksWidget` | `tests/integration/test_anywidget_hosts.py`; `tests/integration/test_jupyter_kernel.py` verifies the base widget's real notebook display MIME | **Implemented** | Keep the public component classes directly displayable. |
 | Components, core contracts, widgets, and host integrations have separate modules | `components/`, `core/`, `widgets/`, `integrations/` | Import and component tests | **Partial** | Core mathematical/document models are still mostly absent; module layout alone does not satisfy those contracts. |
-| Jupyter/AnyWidget host compatibility | AnyWidget components and host-neutral integration tests | `tests/integration/test_anywidget_hosts.py` | **Partial** | Add real notebook kernel/frontend lifecycle test, including display, reconnect, multiple views, and disposal. |
+| Jupyter/AnyWidget host compatibility | AnyWidget components; notebook cells execute in a real IPython kernel and emit widget-view MIME descriptors | `tests/integration/test_anywidget_hosts.py`; `tests/integration/test_jupyter_kernel.py`; `tests/frontend/bootstrap-lifecycle.test.ts` | **Partial** | Add a browser-host end-to-end test in JupyterLab or Notebook to verify actual DOM rendering, output removal, reconnect, and disposal. |
 | Optional Marimo adapter wraps the same component instance | `src/mathblocks/integrations/marimo.py` | `tests/integration/test_marimo.py` | **Implemented** | Preserve optional/lazy import behavior. |
 | Frontend assets are built into wheel and sdist; end-user install does not require Node.js | Phase 5 build and artifact verification workflow; `scripts/verify_release_artifacts.py` | PR #5 CI run [44754371500](https://github.com/Mujshanan/mathblocks/actions/runs/44754371500) reports artifact and clean-install smoke tests passing on implementation commit | **Implemented in candidate CI** | Re-run on the final integrated commit after the stacked PRs are reconciled. |
 | CSS is isolated from the host page | Frontend styles scoped under the MathBlocks root in the component implementation | Frontend tests/build | **Implemented in candidate** | Include a regression test against host-level selectors and multiple widget instances. |
-| Reproducible dependency installation through a committed lockfile | No committed lockfile was present in the reviewed foundation branch | Repository inspection | **Not implemented** | Commit and validate the npm lockfile; ensure CI uses deterministic install. |
+| Reproducible dependency installation through a committed lockfile | `package-lock.json` (lockfile v3) is committed; CI uses `npm ci` in frontend and Python build jobs | CI run [44769265930](https://github.com/Mujshanan/mathblocks/actions/runs/44769265930) passed frontend checks and Python 3.11/3.12/3.13 build/test jobs | **Implemented** | Keep `package-lock.json` in sync with `package.json`; retain `npm ci` in CI. |
 
 ### ADR-002 — Canonical mathematical expression representation
 
@@ -85,8 +85,8 @@ The most substantial completed foundation is the shared AnyWidget/state transpor
 | Invalid/stale updates do not replace accepted state | Python trait validation and rejected-update restoration in `widgets/base.py` | Invalid envelope and stale-update tests | **Implemented** | Add browser-to-Python and multi-client integration coverage. |
 | Python nested mutation cannot bypass observation; getters return detached data | `component_state` returns detached data; updates pass through validated setter | `tests/python/test_widget_base.py` | **Implemented** | Continue to keep raw synchronized envelope immutable to callers. |
 | Frontend state separates synchronized data from per-view transient interaction state | Frontend store implementation and component views | `tests/frontend/store.test.ts` | **Partial** | Audit each component for accidental persistence of cursor, selection, focus, hover, and temporary editing state. |
-| Multiple views share state while keeping per-view actors/transient state | Actor IDs and conflict policy exist in transport/store | Unit tests cover deterministic actor ordering, not two live views | **Partial** | Add a real two-view test proving sibling propagation and view-local transient state. |
-| Reconnection and disposal follow AnyWidget lifecycle; disposal does not destroy Python state | AnyWidget view lifecycle is used; full host lifecycle test not found | Existing host tests are smoke tests | **Not verified** | Add a real notebook/AnyWidget lifecycle test for reconnect, cleanup, and preserved Python state. |
+| Multiple views share state while keeping per-view actors/transient state | Shared model subscriptions and per-view lifecycle cleanup are exercised | `tests/frontend/bootstrap-lifecycle.test.ts` mounts two independent views against one model, verifies propagation, aborts one view, and reconnects another; `tests/integration/test_jupyter_kernel.py` verifies repeated notebook displays use the same model ID | **Partial** | Add browser-host coverage for two simultaneously rendered views and view-local interaction state. |
+| Reconnection and disposal follow AnyWidget lifecycle; disposal does not destroy Python state | AFM render hooks bind cleanup to each host-provided `AbortSignal`; Python widget state remains independent of view cleanup | `tests/frontend/bootstrap-lifecycle.test.ts` verifies independent abort, cleanup, reconnect, and preserved model state; notebook-kernel test verifies kernel-side state persists across cells | **Partial** | Verify actual browser-host output removal/reconnection and frontend disposal in JupyterLab or Notebook. |
 | External results are not presented as current when their inputs have changed | ADR describes freshness; current `Result` has no correlation fields | No tests found | **Not implemented** | Coordinate with ADR-003 result correlation implementation. |
 
 ### ADR-005 — Component identity, document model, and persistence
@@ -112,14 +112,14 @@ The following dependencies should guide implementation order:
 2. **ADR-002 expression domain model:** Implement the canonical expression envelope, operator catalogue, source preservation, validation, and deterministic serialization. ADR-003 cannot be implemented correctly before this boundary exists.
 3. **ADR-005 document model:** Define document/component identity, registry, ordered records, unknown-component preservation, and JSON persistence. Document records should embed versioned component domain data, not live AnyWidget state envelopes.
 4. **ADR-003 evaluation contract:** Define concrete request/result schemas and freshness metadata against ADR-002 expressions. Add a small external adapter as a conformance fixture; do not introduce worksheet execution.
-5. **Cross-host integration:** Verify that expression edits, result updates, document save/restore, and multiple views remain consistent across Python, Jupyter, and optional Marimo.
+5. **Browser-host lifecycle validation:** Add a JupyterLab/Notebook browser test for actual DOM rendering, output removal, reconnect, and disposal. Then continue cross-host integration for expression edits, result updates, document save/restore, and multiple views across Python, Jupyter, and optional Marimo.
 
 ## Prioritized implementation backlog
 
 | Priority | Work item | ADR coverage | Exit evidence |
 |---|---|---|---|
-| P0 | Commit the frontend dependency lockfile and verify deterministic CI install | ADR-001 | Lockfile committed; CI uses lockfile-based install and passes. |
-| P0 | Add real notebook/AnyWidget lifecycle integration tests, including two views and reconnect/disposal | ADR-001, ADR-004 | Automated test proves state propagation, view cleanup, and Python state preservation. |
+| P0 | Commit the frontend dependency lockfile and verify deterministic CI install | ADR-001 | **Complete:** `package-lock.json` committed; CI uses `npm ci`; run [44769265930](https://github.com/Mujshanan/mathblocks/actions/runs/44769265930) passed. |
+| P0 | Add kernel-backed notebook display and frontend view-lifecycle tests | ADR-001, ADR-004 | **Implemented:** notebook kernel emits real widget-view MIME descriptors; frontend test verifies two views, independent abort cleanup, reconnect, and retained model state. CI run [44769395392](https://github.com/Mujshanan/mathblocks/actions/runs/44769395392) is the validation run for this commit. |
 | P1 | Implement canonical expression types, schema, operator catalogue, and validation | ADR-002 | Versioned expression fixtures; positive/negative validation and deterministic round-trip tests. |
 | P1 | Implement component/document IDs, ordered document model, registry, and migrations | ADR-005 | Document save/restore, unknown component preservation, copy/move identity tests. |
 | P2 | Specify request/result/diagnostic schemas and capability contract | ADR-003 | Versioned JSON schemas and conformance fixtures; stale-result tests. |
