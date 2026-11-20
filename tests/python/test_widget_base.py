@@ -164,3 +164,13 @@ def test_synchronized_state_rejects_in_place_mutation() -> None:
 
     assert widget.component_state == {"nested": {"items": [1, 2]}}
     assert widget.revision == 1
+
+
+def test_default_synchronized_state_is_immutable() -> None:
+    widget = MathBlocksWidget()
+
+    with pytest.raises(TypeError, match="read-only"):
+        widget.state["data"]["value"] = 1
+
+    assert widget.component_state == {}
+    assert widget.revision == 0
