@@ -4,11 +4,9 @@
 
 MathBlocks is a Python-first toolkit for building interactive mathematical and scientific interfaces. Its TypeScript frontend is bundled inside the Python package through AnyWidget.
 
-> Project status: Phase 3 structured and visual components are implemented on the phase-3 development branch. Math, Text, Result, Matrix, Vector, Graph, and Diagram are available in the proposed implementation.
+> Project status: Phases 0–4 are implemented in the development branch. The component set includes Math, Text, Result, Matrix, Vector, Graph, and Diagram, with AnyWidget host integration and an optional Marimo adapter.
 
 ## Installation
-
-Once published on PyPI:
 
 ```bash
 pip install mathblocks
@@ -16,13 +14,19 @@ pip install mathblocks
 
 No Node.js or frontend build tools are required by end users. The published wheel includes compiled frontend assets. Node.js is a development/build requirement only.
 
+For Marimo, install the optional extra:
+
+```bash
+pip install "mathblocks[marimo]"
+```
+
 ## Quick start
 
 ```python
 from IPython.display import display
 from mathblocks import Diagram, Graph, Math, Matrix, Result, Text, Vector
 
-display(Math(r"\\sigma = \\frac{P}{A}"))
+display(Math(r"\sigma = \frac{P}{A}"))
 display(Text("Check the sign convention.", tone="note"))
 display(Result(24.6, unit="MPa"))
 display(Matrix([[1, 2], [3, 4]], label="Matrix"))
@@ -34,6 +38,14 @@ display(Diagram(
     edges=[{"source": "a", "target": "b"}],
 ))
 ```
+
+## Host integrations
+
+- **Jupyter Notebook / JupyterLab:** display components directly with IPython's display function.
+- **Marimo:** use the optional `as_marimo(widget)` adapter for reactive Marimo UI elements.
+- **Other AnyWidget hosts:** use the components directly as AnyWidget instances.
+
+See [Host integrations](docs/development/host-integrations.md) for examples, requirements, and the host compatibility boundary.
 
 ## Component guide
 
@@ -55,6 +67,8 @@ Python owns the public API, domain state, validation, and serialization. AnyWidg
 
 The versioned state envelope remains the single synchronization contract. Component data is stored in data; focus, selection, pointer state, and hover remain transient browser state. Browser edits use the existing per-view actor and revision policy. Python wins equal-revision conflicts. There is no CRDT or component-specific revision mechanism.
 
+Marimo's adapter wraps the same AnyWidget instance and does not create a parallel component state store.
+
 ## Development
 
 Requirements: Python 3.11+, Node.js 22.12+ and npm.
@@ -68,7 +82,14 @@ python -m pip install -e ".[dev]"
 pytest
 ```
 
-CI builds the frontend, checks TypeScript, runs frontend tests, runs Python tests on 3.11–3.13, and verifies the wheel contains the compiled assets.
+To test the optional Marimo integration:
+
+```bash
+python -m pip install -e ".[dev,marimo]"
+pytest tests/integration
+```
+
+CI builds the frontend, checks TypeScript, runs Python tests on 3.11–3.13, verifies wheel assets, and separately tests the Marimo host adapter.
 
 ## Milestones
 
@@ -76,7 +97,7 @@ CI builds the frontend, checks TypeScript, runs frontend tests, runs Python test
 - [x] Phase 1 — AnyWidget state and lifecycle foundation
 - [x] Phase 2 — Math, Text, and Result
 - [x] Phase 3 — Matrix, Vector, Graph, Diagram, validation, and serialization tests
-- [ ] Phase 4 — host integrations
+- [x] Phase 4 — Jupyter/AnyWidget and Marimo host integrations
 - [ ] Phase 5 — stability and release
 
-Phase 3 implementation is proposed in a draft pull request. Existing Phase 1 and Phase 2 pull requests remain unmerged.
+Phases 1–4 are proposed in a dependency-ordered series of draft pull requests. They remain unmerged.
