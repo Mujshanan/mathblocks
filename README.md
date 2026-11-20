@@ -4,7 +4,7 @@
 
 MathBlocks is a Python-first toolkit for building interactive mathematical and scientific interfaces. Its TypeScript frontend is bundled inside the Python package through AnyWidget.
 
-> Project status: Phases 0–4 are implemented in the development branch; Phase 5 is stabilizing the public API and release process. MathBlocks is currently a pre-release development project and has not yet been published to PyPI.
+> Project status: Phases 0–5 are implemented in the development branch. The API and release checks are in place, but MathBlocks remains a pre-release development project and has not yet been published to PyPI.
 
 ## Installation
 
@@ -108,6 +108,6 @@ CI builds the frontend, checks TypeScript, runs Python tests on 3.11–3.13, ver
 - [x] Phase 2 — Math, Text, and Result
 - [x] Phase 3 — Matrix, Vector, Graph, Diagram, validation, and serialization tests
 - [x] Phase 4 — Jupyter/AnyWidget and Marimo host integrations
-- [ ] Phase 5 — stability and release
+- [x] Phase 5 — stability and release readiness (PyPI publication deferred)
 
 Phases 1–5 are proposed in a dependency-ordered series of draft pull requests. They remain unmerged. Phase 5 prepares release artifacts and procedures; it does not publish to PyPI.
