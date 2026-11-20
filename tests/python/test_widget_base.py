@@ -1,7 +1,7 @@
 import pytest
 from traitlets import TraitError
 
-from mathblocks.core.serialization import make_state_envelope
+from mathblocks.core.serialization import StateContractError, make_state_envelope
 from mathblocks.widgets import MathBlocksWidget
 
 
@@ -118,24 +118,24 @@ def test_invalid_wire_state_is_rejected(invalid_state: dict) -> None:
 def test_non_json_values_are_rejected() -> None:
     widget = MathBlocksWidget()
 
-    with pytest.raises(TraitError):
+    with pytest.raises(StateContractError):
         widget.component_state = {"not_json": object()}
 
 
 def test_unsafe_integers_and_cyclic_values_are_rejected() -> None:
     widget = MathBlocksWidget()
 
-    with pytest.raises(TraitError):
+    with pytest.raises(StateContractError):
         widget.component_state = {"unsafe": 2**53}
 
     cyclic: dict = {}
     cyclic["self"] = cyclic
-    with pytest.raises(TraitError):
+    with pytest.raises(StateContractError):
         widget.component_state = cyclic
 
 
 def test_widget_has_frontend_module() -> None:
     widget = MathBlocksWidget()
 
-    assert "export default" in widget._esm
+    assert "as default" in widget._esm
     assert "change:state" in widget._esm
