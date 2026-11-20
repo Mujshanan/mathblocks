@@ -71,10 +71,14 @@ class MathBlocksWidget(anywidget.AnyWidget):
         if self._restoring_state:
             return
         incoming = change["new"]
-        if compare_state_versions(incoming, self._accepted_state) <= 0:
+        accepted = getattr(self, "_accepted_state", None)
+        if accepted is None:
+            self._accepted_state = deepcopy(incoming)
+            return
+        if compare_state_versions(incoming, accepted) <= 0:
             self._restoring_state = True
             try:
-                self.set_trait("state", deepcopy(self._accepted_state))
+                self.set_trait("state", deepcopy(accepted))
             finally:
                 self._restoring_state = False
             return
