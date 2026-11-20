@@ -42,7 +42,7 @@ function normalizeJsonValue(
     }
     if (ancestors.has(value)) throw new TypeError(`${path} contains a circular reference.`);
     ancestors.add(value);
-    const normalized: JsonObject = {};
+    const normalized = Object.create(null) as JsonObject;
     for (const [key, item] of Object.entries(value)) {
       normalized[key] = normalizeJsonValue(item, ancestors, `${path}.${key}`);
     }
@@ -87,7 +87,7 @@ export function readStateEnvelope(
     !Number.isSafeInteger(envelope.revision) ||
     (envelope.revision as number) < 0 ||
     typeof envelope.actor !== "string" ||
-    envelope.actor.length === 0
+    envelope.actor.trim().length === 0
   ) {
     throw new TypeError("Invalid or unsupported MathBlocks state envelope.");
   }
