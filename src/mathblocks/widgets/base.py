@@ -39,7 +39,7 @@ class MathBlocksWidget(anywidget.AnyWidget):
     """
 
     _esm = _read_asset("index.js", _FALLBACK_ESM)
-    _css = _read_asset("style.css")
+    _css = _read_asset("frontend.css")
 
     schema_version = traitlets.Int(1).tag(sync=True)
     component_state = traitlets.Dict(default_value={}).tag(sync=True)
