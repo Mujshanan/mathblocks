@@ -1,6 +1,6 @@
 # ADR-002: Canonical mathematical expression representation
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-11-20
 - **Decision owners:** MathBlocks maintainers
 - **Scope:** Mathematical expression data, editor interchange, serialization, and rendering
