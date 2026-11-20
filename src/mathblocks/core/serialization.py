@@ -3,21 +3,49 @@
 from __future__ import annotations
 
 import json
+import math
 from copy import deepcopy
 from typing import Any
 
 SCHEMA_VERSION = 1
 PYTHON_ACTOR = "python"
+MAX_SAFE_INTEGER = 2**53 - 1
 
 
 class StateContractError(ValueError):
     """Raised when component state violates the public wire contract."""
 
 
+def _validate_json_value(value: Any, path: str = "data") -> None:
+    """Reject Python values that cannot be represented losslessly in JavaScript JSON."""
+    if value is None or isinstance(value, (str, bool)):
+        return
+    if isinstance(value, int):
+        if abs(value) > MAX_SAFE_INTEGER:
+            raise StateContractError(f"{path} contains an integer outside JavaScript's safe range.")
+        return
+    if isinstance(value, float):
+        if not math.isfinite(value):
+            raise StateContractError(f"{path} contains a non-finite number.")
+        return
+    if isinstance(value, list):
+        for index, item in enumerate(value):
+            _validate_json_value(item, f"{path}[{index}]")
+        return
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if not isinstance(key, str):
+                raise StateContractError(f"{path} contains a non-string object key.")
+            _validate_json_value(item, f"{path}.{key}")
+        return
+    raise StateContractError(f"{path} contains unsupported value type {type(value).__name__}.")
+
+
 def normalize_json_object(value: Any) -> dict[str, Any]:
-    """Return a detached JSON-compatible object with finite numeric values only."""
+    """Return a detached JSON-compatible object with finite, safe numeric values."""
     if not isinstance(value, dict):
         raise StateContractError("Component state must be a JSON object.")
+    _validate_json_value(value)
     try:
         encoded = json.dumps(
             value,
