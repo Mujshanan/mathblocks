@@ -186,7 +186,7 @@ describe("AnyWidget state synchronization", () => {
     const sparse = new Array(2);
     sparse[1] = "present";
     expect(() => commitState(model, { value: sparse }, "view:test")).toThrow(
-      "non-JSON array properties",
+      "dense array",
     );
 
     const symbolKeyed = { value: 1, [Symbol("hidden")]: 2 };
