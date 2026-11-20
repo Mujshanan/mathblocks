@@ -149,3 +149,18 @@ def test_widget_has_frontend_module() -> None:
 
     assert "as default" in widget._esm
     assert "change:state" in widget._esm
+
+
+def test_synchronized_state_rejects_in_place_mutation() -> None:
+    widget = MathBlocksWidget(
+        state=make_state_envelope({"nested": {"items": [1, 2]}}, revision=1)
+    )
+
+    with pytest.raises(TypeError, match="read-only"):
+        widget.state["data"]["nested"]["value"] = "bypass"
+
+    with pytest.raises(TypeError, match="read-only"):
+        widget.state["data"]["nested"]["items"].append(3)
+
+    assert widget.component_state == {"nested": {"items": [1, 2]}}
+    assert widget.revision == 1
