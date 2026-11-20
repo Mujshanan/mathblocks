@@ -97,8 +97,8 @@ def test_notebook_kernel_preserves_widget_state_between_cells() -> None:
                 "'value': 'updated in kernel'})"
             ),
             (
-                "assert widget.value == 'updated in kernel'\n"
-                "print(widget.value)"
+                "assert widget.component_state['value'] == 'updated in kernel'\n"
+                "print(widget.component_state['value'])"
             ),
         ]
     )
