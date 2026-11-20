@@ -58,7 +58,6 @@ class MathBlocksWidget(anywidget.AnyWidget):
         super().__init__(**kwargs)
         self._accepted_state = deepcopy(self.state)
         self._restoring_state = False
-        self.observe(self._on_state_change, names="state")
 
     @traitlets.validate("state")
     def _validate_state(self, proposal: dict[str, Any]) -> dict[str, Any]:
