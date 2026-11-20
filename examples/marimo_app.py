@@ -41,18 +41,19 @@ def _():
 
 @app.cell
 def _(matrix, vector, graph, diagram, result):
-    # Access the live AnyWidget-backed state from reactive Marimo cells.
+    # Read the Marimo UIElement value to register reactive dependencies.
+    # AnyWidget synchronized traits are exposed under the "state" key.
     mo.md(
         f"""
-        **Current matrix:** {matrix.widget.value}
+        **Current matrix:** {matrix.value.get("state", {}).get("data", {}).get("value")}
 
-        **Current vector:** {vector.widget.value}
+        **Current vector:** {vector.value.get("state", {}).get("data", {}).get("value")}
 
-        **Current graph data:** {graph.widget.value}
+        **Current graph data:** {graph.value.get("state", {}).get("data", {}).get("value")}
 
-        **Current diagram data:** {diagram.widget.value}
+        **Current diagram data:** {diagram.value.get("state", {}).get("data", {}).get("value")}
 
-        **Current result:** {result.widget.value}
+        **Current result:** {result.value.get("state", {}).get("data", {}).get("value")}
         """
     )
     return

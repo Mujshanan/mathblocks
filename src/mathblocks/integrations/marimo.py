@@ -19,9 +19,10 @@ def as_marimo(widget: MathBlocksWidget) -> Any:
     Marimo is an optional dependency. Install it with
     pip install mathblocks[marimo].
 
-    The returned Marimo element exposes the wrapped AnyWidget as .widget.
-    The MathBlocks component value remains available on
-    element.widget.value / element.widget.component_state.
+    Read the synchronized trait snapshot through the returned element's
+    .value property to establish Marimo reactive dependencies. The original
+    AnyWidget is available as .widget; its component_state property exposes
+    the current Python-side component data directly.
     """
     from mathblocks.widgets import MathBlocksWidget as _MathBlocksWidget
 

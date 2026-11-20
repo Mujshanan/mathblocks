@@ -55,9 +55,11 @@ matrix
 ```
 
 The returned Marimo UI element exposes the original AnyWidget as
-`matrix.widget`. Its component data remains available through
-`matrix.widget.component_state`; the underlying AnyWidget trait value is
-`matrix.widget.value`. The wrapper does not create a second component state
+`matrix.widget`. Read `matrix.value` in downstream Marimo cells to register
+reactive dependencies; it is the synchronized trait snapshot, with component
+data under `matrix.value["state"]["data"]`. The original widget's
+`matrix.widget.component_state` property exposes the current Python-side
+component data directly. The wrapper does not create a second component state
 store or alter the MathBlocks versioned envelope.
 
 A complete runnable example is in [marimo_app.py](../../examples/marimo_app.py):
