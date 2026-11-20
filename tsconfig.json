@@ -6,18 +6,12 @@
     "strict": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
-    ],
-    "types": [
-      "vite/client",
-      "node"
-    ]
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vite/client", "node"]
   },
   "include": [
     "frontend/src/**/*.ts",
+    "frontend/dev/**/*.ts",
     "tests/frontend/**/*.ts",
     "vite.config.ts",
     "vitest.config.ts"
