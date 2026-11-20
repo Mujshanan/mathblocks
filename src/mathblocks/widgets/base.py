@@ -94,14 +94,13 @@ class MathBlocksWidget(anywidget.AnyWidget):
     _esm = _read_asset("index.js", _FALLBACK_ESM)
     _css = _read_asset("frontend.css")
 
-    state = traitlets.Dict(default_value=StateStore().envelope).tag(sync=True)
+    # The default must already be immutable: traitlets may not replace an
+    # equal mutable default when set_trait() compares values for equality.
+    state = traitlets.Dict(default_value=_freeze_json(StateStore().envelope)).tag(sync=True)
 
     def __init__(self, **kwargs: Any) -> None:
         self._restoring_state = False
         super().__init__(**kwargs)
-        # Traitlets dictionaries are mutable. Re-assign once after initialization
-        # so even the default value is recursively frozen before it is exposed.
-        self.set_trait("state", self.state)
         self._state_store = StateStore(self.state)
 
     @traitlets.validate("state")
