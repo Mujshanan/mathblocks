@@ -39,15 +39,16 @@ pip install git+https://github.com/Mujshanan/mathblocks.git
 The first components are available from the Python package API:
 
 ```python
+from IPython.display import display
 from mathblocks import Math, Result, Text
 
 equation = Math(r"\sigma = \frac{P}{A}")
 annotation = Text("Check the sign convention.", tone="note")
 result = Result(24.6, unit="MPa")
 
-equation
-annotation
-result
+display(equation)
+display(annotation)
+display(result)
 ```
 
 In Jupyter, AnyWidget components are displayed by returning or displaying the widget. In Marimo, the optional adapter is intended to provide a concise integration:
@@ -57,7 +58,7 @@ import marimo as mo
 from mathblocks import Math
 
 equation = Math(r"\int_0^1 x^2\,dx")
-mo.ui.anywidget(equation.widget)
+equation
 ```
 
 See [First components](docs/components/first-components.md) and [the runnable example](examples/first_components.py) for the current API. Math is editable by default; use `read_only=True` for KaTeX rendering.
@@ -259,11 +260,11 @@ Work is organized into milestones. Each milestone should have a working demonstr
 
 ### Phase 1 — AnyWidget foundation
 
-- [ ] Implement a small reusable Python widget base.
-- [ ] Define the Python-to-frontend data contract and serialization rules.
-- [ ] Implement frontend initialization, update handling, and deterministic cleanup.
-- [ ] Handle Python-originated updates and frontend-originated updates.
-- [ ] Test multiple widget instances and multiple views without shared mutable state.
+- [x] Implement a small reusable Python widget base.
+- [x] Define the Python-to-frontend data contract and serialization rules.
+- [x] Implement frontend initialization, update handling, and deterministic cleanup.
+- [x] Handle Python-originated updates and frontend-originated updates.
+- [x] Test multiple widget instances and multiple views without shared mutable state.
 
 **Exit criteria:** a minimal interactive component synchronizes reliably in Jupyter without requiring users to build frontend assets.
 
