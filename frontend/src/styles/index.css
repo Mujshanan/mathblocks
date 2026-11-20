@@ -1,13 +1,10 @@
-:root {
-  color-scheme: light dark;
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-}
-
 .mathblocks-root {
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
   color: inherit;
+  color-scheme: light dark;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
   font: inherit;
 }
 
