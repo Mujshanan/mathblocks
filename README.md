@@ -121,6 +121,8 @@ mathblocks/
 ├── LICENSE
 ├── pyproject.toml
 ├── package.json
+├── vite.config.ts
+├── vitest.config.ts
 ├── tsconfig.json
 ├── .gitignore
 ├── .editorconfig
@@ -153,9 +155,15 @@ mathblocks/
 │       │   └── marimo.py
 │       └── static/
 ├── frontend/
+│   ├── dev/
+│   │   ├── index.html
+│   │   └── main.ts
 │   └── src/
 │       ├── index.ts
 │       ├── core/
+│       │   ├── bootstrap.ts
+│       │   ├── model.ts
+│       │   └── store.ts
 │       ├── components/
 │       │   ├── math/
 │       │   ├── text/
@@ -168,8 +176,12 @@ mathblocks/
 │       ├── interaction/
 │       ├── synchronization/
 │       ├── styles/
+│       │   ├── index.css
+│       │   └── README.md
 │       └── utils/
 ├── tests/
+│   ├── frontend/
+│   │   └── store.test.ts
 │   ├── python/
 │   ├── frontend/
 │   └── integration/
