@@ -1,5 +1,4 @@
 # Components
 
 - [First components](first-components.md) — Math input and static rendering, Text annotations, and Result output.
-
-Matrix, Vector, Graph, and Diagram remain planned for later milestones.
+- [Structured and visual components](structured-visual.md) — Matrix, Vector, Graph, and Diagram.
