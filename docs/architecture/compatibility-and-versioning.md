@@ -19,19 +19,23 @@ The Python package version is the release version users install. Frontend
 assets are built and shipped as part of that same release; they are not
 independently versioned at runtime.
 
-## Serialized component state
+## Component state versioning
 
-Every component state envelope includes an integer `schema_version`.
+The shared AnyWidget model exposes two synchronized fields:
+
+- `schema_version`: the integer version of the component payload contract.
+- `component_state`: the JSON-compatible component payload.
+
 Version 1 is the initial contract.
 
 - Compatible additions that existing readers can safely ignore do not
   necessarily require a schema version increment.
 - Changes that alter the meaning, required shape, or interpretation of
-  existing serialized data require a schema version increment.
+  existing component data require a schema version increment.
 - Readers must reject unsupported future schema versions with a clear error;
   they must not silently reinterpret unknown data.
-- Component-specific payloads must be JSON-compatible and validated at the
-  Python boundary before being sent to the frontend.
+- Component-specific payloads must be validated at the Python boundary before
+  being sent to the frontend.
 
 ## Python and frontend compatibility
 
