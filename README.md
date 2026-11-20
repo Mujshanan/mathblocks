@@ -28,11 +28,7 @@ pip install mathblocks
 
 No Node.js, npm, or frontend build tools will be required by end users. The published wheel will include the compiled frontend assets.
 
-For now, while the package is under development, install directly from GitHub:
-
-```bash
-pip install git+https://github.com/Mujshanan/mathblocks.git
-```
+For development from source, clone the repository and build its frontend assets before installing the editable Python package. Node.js is a development/build requirement only; it will not be required when installing a published wheel.
 
 ## Quick start
 
@@ -183,7 +179,6 @@ mathblocks/
 │   ├── frontend/
 │   │   └── store.test.ts
 │   ├── python/
-│   ├── frontend/
 │   └── integration/
 ├── examples/
 └── scripts/
@@ -205,8 +200,9 @@ git clone https://github.com/Mujshanan/mathblocks.git
 cd mathblocks
 python -m venv .venv
 # Activate the environment, then:
-python -m pip install -e ".[dev]"
 npm install
+npm run build
+python -m pip install -e ".[dev]"
 ```
 
 ### Frontend dependencies
@@ -240,7 +236,7 @@ pytest
 npm test
 ```
 
-Build and test commands will be refined as the initial tooling and CI workflows are added.
+The CI workflow runs the frontend build, TypeScript checks, frontend tests, Python tests on Python 3.11–3.13, and a built-wheel smoke test.
 
 ## Development and implementation plan
 
@@ -248,16 +244,18 @@ Work is organized into milestones. Each milestone should have a working demonstr
 
 ### Phase 0 — Project foundation
 
-- [ ] Establish package metadata, supported Python versions, license, and development tooling.
-- [ ] Set up TypeScript compilation and bundle assets into the Python package.
-- [ ] Add CI for Python tests, frontend tests, type checking, and package builds.
-- [ ] Define versioning and compatibility policy for Python APIs and frontend assets.
+- [x] Establish package metadata, supported Python versions, license, and development tooling.
+- [x] Set up TypeScript compilation and bundle assets into the Python package.
+- [x] Add CI for Python tests, frontend tests, type checking, and package builds.
+- [x] Define versioning and compatibility policy for Python APIs and frontend assets.
+
+The automated pipeline has been added; its first run is still required to validate the clean-build and wheel-install exit criteria. See [the Phase 0 workflow](docs/development/phase-0-foundation.md) and [compatibility policy](docs/architecture/compatibility-and-versioning.md).
 
 **Exit criteria:** a clean environment can build and install the package, and the installed package can load a minimal AnyWidget with its bundled frontend.
 
 ### Phase 1 — AnyWidget foundation
 
-- [ ] Implement a small reusable Python widget base.
+- [x] Implement a small reusable Python widget base.
 - [ ] Define the Python-to-frontend data contract and serialization rules.
 - [ ] Implement frontend initialization, update handling, and deterministic cleanup.
 - [ ] Handle Python-originated updates and frontend-originated updates.
