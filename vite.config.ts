@@ -20,9 +20,9 @@ export default defineConfig({
       formats: ["es"],
       fileName: () => "index.js",
     },
-    rollupOptions: {
+    rolldownOptions: {
       output: {
-        inlineDynamicImports: true,
+        codeSplitting: false,
       },
     },
   },

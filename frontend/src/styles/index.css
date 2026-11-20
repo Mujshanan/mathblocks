@@ -1,13 +1,10 @@
-:root {
-  color-scheme: light dark;
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-}
-
 .mathblocks-root {
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
   color: inherit;
+  color-scheme: light dark;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
   font: inherit;
 }
 
@@ -15,4 +12,77 @@
 .mathblocks-root *::before,
 .mathblocks-root *::after {
   box-sizing: inherit;
+}
+
+.mathblocks-state-panel {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 48rem;
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  border-radius: 0.75rem;
+}
+
+.mathblocks-state-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.mathblocks-state-description {
+  margin: 0;
+  opacity: 0.72;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.mathblocks-state-editor {
+  width: 100%;
+  min-height: 10rem;
+  resize: vertical;
+  padding: 0.75rem;
+  border: 1px solid color-mix(in srgb, currentColor 24%, transparent);
+  border-radius: 0.5rem;
+  background: transparent;
+  color: inherit;
+  font: 0.875rem/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
+  tab-size: 2;
+}
+
+.mathblocks-state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.mathblocks-state-apply {
+  padding: 0.5rem 0.875rem;
+  border: 1px solid color-mix(in srgb, currentColor 24%, transparent);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, currentColor 9%, transparent);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.mathblocks-state-apply:hover {
+  background: color-mix(in srgb, currentColor 15%, transparent);
+}
+
+.mathblocks-state-apply:focus-visible,
+.mathblocks-state-editor:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.mathblocks-state-status {
+  min-width: 0;
+  font-size: 0.8125rem;
+  opacity: 0.72;
+}
+
+.mathblocks-state-status[data-state="error"] {
+  color: #d04b4b;
+  opacity: 1;
 }

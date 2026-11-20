@@ -1,4 +1,5 @@
 import "./styles/index.css";
 
-/** Public frontend entry point for the bundled AnyWidget view. */
+/** Public AnyWidget module and named frontend entry point. */
+export { default } from "./core/bootstrap";
 export { renderMathBlocks } from "./core/bootstrap";

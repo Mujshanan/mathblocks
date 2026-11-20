@@ -28,11 +28,7 @@ pip install mathblocks
 
 No Node.js, npm, or frontend build tools will be required by end users. The published wheel will include the compiled frontend assets.
 
-For now, while the package is under development, install directly from GitHub:
-
-```bash
-pip install git+https://github.com/Mujshanan/mathblocks.git
-```
+For development from source, clone the repository and build its frontend assets before installing the editable Python package. Node.js is a development/build requirement only; it will not be required when installing a published wheel.
 
 ## Quick start
 
@@ -48,17 +44,17 @@ equation
 matrix
 ```
 
-In Jupyter, AnyWidget components are displayed by returning or displaying the widget. In Marimo, the optional adapter is intended to provide a concise integration:
+In Jupyter, a component is displayed directly. In Marimo, the same component instance is wrapped by Marimo's AnyWidget adapter:
 
 ```python
 import marimo as mo
 from mathblocks import Math
 
 equation = Math(r"\int_0^1 x^2\,dx")
-mo.ui.anywidget(equation.widget)
+mo.ui.anywidget(equation)
 ```
 
-The exact public API will be documented when the first stable component contracts are implemented.
+The exact public API will be documented when the first stable component contracts are implemented. See [ADR-001](docs/architecture/decisions/ADR-001-anywidget-component-architecture.md) for the proposed component/widget model and [ADR-002](docs/architecture/decisions/ADR-002-expression-representation.md) for the proposed expression representation.
 
 ## Planned components
 
@@ -98,12 +94,14 @@ Python application / notebook
 ### Responsibilities
 
 - **Python core:** public component APIs, domain models, validation, serialization, and Python-side state.
-- **Component layer:** focused Python wrappers and component-specific contracts.
+- **Component layer:** public component classes, each implemented as a `MathBlocksWidget` subclass, with component-specific contracts.
 - **AnyWidget adapter:** transport and lifecycle integration between Python and the browser.
 - **TypeScript frontend:** editing, rendering, keyboard interaction, and local presentation state.
 - **Host integrations:** optional conveniences for environments such as Marimo. Host-specific behavior must not leak into the core package.
 
 ### State ownership
+
+The versioned synchronized envelope and its conflict policy are defined in [the state contract](docs/architecture/state-contract.md).
 
 Keep three categories distinct:
 
@@ -163,7 +161,8 @@ mathblocks/
 │       ├── core/
 │       │   ├── bootstrap.ts
 │       │   ├── model.ts
-│       │   └── store.ts
+│       │   ├── store.ts
+│       │   └── synchronization.ts
 │       ├── components/
 │       │   ├── math/
 │       │   ├── text/
@@ -183,7 +182,9 @@ mathblocks/
 │   ├── frontend/
 │   │   └── store.test.ts
 │   ├── python/
-│   ├── frontend/
+│   │   ├── test_package_import.py
+│   │   ├── test_state_store.py
+│   │   └── test_widget_base.py
 │   └── integration/
 ├── examples/
 └── scripts/
@@ -205,8 +206,9 @@ git clone https://github.com/Mujshanan/mathblocks.git
 cd mathblocks
 python -m venv .venv
 # Activate the environment, then:
-python -m pip install -e ".[dev]"
 npm install
+npm run build
+python -m pip install -e ".[dev]"
 ```
 
 ### Frontend dependencies
@@ -240,7 +242,7 @@ pytest
 npm test
 ```
 
-Build and test commands will be refined as the initial tooling and CI workflows are added.
+The CI workflow runs the frontend build, TypeScript checks, frontend tests, Python tests on Python 3.11–3.13, and a built-wheel smoke test.
 
 ## Development and implementation plan
 
@@ -248,20 +250,25 @@ Work is organized into milestones. Each milestone should have a working demonstr
 
 ### Phase 0 — Project foundation
 
-- [ ] Establish package metadata, supported Python versions, license, and development tooling.
-- [ ] Set up TypeScript compilation and bundle assets into the Python package.
-- [ ] Add CI for Python tests, frontend tests, type checking, and package builds.
-- [ ] Define versioning and compatibility policy for Python APIs and frontend assets.
+- [x] Establish package metadata, supported Python versions, license, and development tooling.
+- [x] Set up TypeScript compilation and bundle assets into the Python package.
+- [x] Add CI for Python tests, frontend tests, type checking, and package builds.
+- [x] Define versioning and compatibility policy for Python APIs and frontend assets.
+
+The CI pipeline has passed frontend checks, Python 3.11–3.13 tests, wheel/source builds, and installed-wheel asset smoke tests. See [the Phase 0 workflow](docs/development/phase-0-foundation.md) and [compatibility policy](docs/architecture/compatibility-and-versioning.md).
 
 **Exit criteria:** a clean environment can build and install the package, and the installed package can load a minimal AnyWidget with its bundled frontend.
 
 ### Phase 1 — AnyWidget foundation
 
-- [ ] Implement a small reusable Python widget base.
-- [ ] Define the Python-to-frontend data contract and serialization rules.
-- [ ] Implement frontend initialization, update handling, and deterministic cleanup.
-- [ ] Handle Python-originated updates and frontend-originated updates.
-- [ ] Test multiple widget instances and multiple views without shared mutable state.
+- [x] Implement a reusable Python widget base with one atomic state trait.
+- [x] Define the versioned Python-to-frontend data contract and JSON serialization rules.
+- [x] Implement frontend initialization, model updates, and deterministic view cleanup.
+- [x] Handle Python-originated and frontend-originated updates.
+- [x] Test multiple widget instances, multiple views, conflict resolution, and cleanup.
+- [x] Add a minimal interactive JSON state inspector as the synchronization demonstration.
+
+See [the state contract](docs/architecture/state-contract.md) and [Phase 1 implementation guide](docs/development/phase-1-anywidget.md).
 
 **Exit criteria:** a minimal interactive component synchronizes reliably in Jupyter without requiring users to build frontend assets.
 
