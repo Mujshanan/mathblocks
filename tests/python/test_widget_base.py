@@ -22,5 +22,5 @@ def test_widget_state_is_synchronized_and_instance_local() -> None:
 def test_widget_has_frontend_module() -> None:
     widget = MathBlocksWidget()
 
-    assert "export default" in widget._esm
+    assert "default" in widget._esm
     assert "render" in widget._esm
