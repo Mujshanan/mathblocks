@@ -101,6 +101,8 @@ Python application / notebook
 
 ### State ownership
 
+The versioned synchronized envelope and its conflict policy are defined in [the state contract](docs/architecture/state-contract.md).
+
 Keep three categories distinct:
 
 1. **Domain state** — component data that Python users expect to inspect, serialize, or persist.
@@ -249,17 +251,20 @@ Work is organized into milestones. Each milestone should have a working demonstr
 - [x] Add CI for Python tests, frontend tests, type checking, and package builds.
 - [x] Define versioning and compatibility policy for Python APIs and frontend assets.
 
-The automated pipeline has been added; its first run is still required to validate the clean-build and wheel-install exit criteria. See [the Phase 0 workflow](docs/development/phase-0-foundation.md) and [compatibility policy](docs/architecture/compatibility-and-versioning.md).
+The CI pipeline has passed frontend checks, Python 3.11–3.13 tests, wheel/source builds, and installed-wheel asset smoke tests. See [the Phase 0 workflow](docs/development/phase-0-foundation.md) and [compatibility policy](docs/architecture/compatibility-and-versioning.md).
 
 **Exit criteria:** a clean environment can build and install the package, and the installed package can load a minimal AnyWidget with its bundled frontend.
 
 ### Phase 1 — AnyWidget foundation
 
-- [x] Implement a small reusable Python widget base.
-- [ ] Define the Python-to-frontend data contract and serialization rules.
-- [ ] Implement frontend initialization, update handling, and deterministic cleanup.
-- [ ] Handle Python-originated updates and frontend-originated updates.
-- [ ] Test multiple widget instances and multiple views without shared mutable state.
+- [x] Implement a reusable Python widget base with one atomic state trait.
+- [x] Define the versioned Python-to-frontend data contract and JSON serialization rules.
+- [x] Implement frontend initialization, model updates, and deterministic view cleanup.
+- [x] Handle Python-originated and frontend-originated updates.
+- [x] Test multiple widget instances, multiple views, conflict resolution, and cleanup.
+- [x] Add a minimal interactive JSON state inspector as the synchronization demonstration.
+
+See [the state contract](docs/architecture/state-contract.md) and [Phase 1 implementation guide](docs/development/phase-1-anywidget.md).
 
 **Exit criteria:** a minimal interactive component synchronizes reliably in Jupyter without requiring users to build frontend assets.
 
