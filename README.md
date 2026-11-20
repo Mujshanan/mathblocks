@@ -6,7 +6,7 @@ MathBlocks is a Python-first toolkit for building interactive mathematical and s
 
 The project takes inspiration from component libraries such as WigglyStuff: Python provides a clear, composable API while the browser handles rich interaction and rendering.
 
-> **Project status:** Early architecture and scaffolding. The APIs and capabilities below describe the intended design; they are not all implemented yet.
+> **Project status:** Phase 2 implementation is in progress on `feat/phase-2-first-components`. Math, Text, and Result are implemented on that branch; Matrix, Graph, and Diagram remain planned.
 
 ## Goals
 
@@ -36,16 +36,18 @@ pip install git+https://github.com/Mujshanan/mathblocks.git
 
 ## Quick start
 
-The following is the intended API. It will become usable as the corresponding components are implemented.
+The first components are available from the Python package API:
 
 ```python
-from mathblocks import Math, Matrix
+from mathblocks import Math, Result, Text
 
-equation = Math(r"x^2 + y^2 = z^2")
-matrix = Matrix([[1, 2], [3, 4]])
+equation = Math(r"\sigma = \frac{P}{A}")
+annotation = Text("Check the sign convention.", tone="note")
+result = Result(24.6, unit="MPa")
 
 equation
-matrix
+annotation
+result
 ```
 
 In Jupyter, AnyWidget components are displayed by returning or displaying the widget. In Marimo, the optional adapter is intended to provide a concise integration:
@@ -58,7 +60,7 @@ equation = Math(r"\int_0^1 x^2\,dx")
 mo.ui.anywidget(equation.widget)
 ```
 
-The exact public API will be documented when the first stable component contracts are implemented.
+See [First components](docs/components/first-components.md) and [the runnable example](examples/first_components.py) for the current API. Math is editable by default; use `read_only=True` for KaTeX rendering.
 
 ## Planned components
 
@@ -267,11 +269,11 @@ Work is organized into milestones. Each milestone should have a working demonstr
 
 ### Phase 2 — First components
 
-- [ ] Implement Math input with MathLive.
-- [ ] Implement static mathematical rendering with KaTeX where appropriate.
-- [ ] Implement Text and Result components.
-- [ ] Define consistent component styling, themes, sizing, and accessibility behavior.
-- [ ] Publish runnable examples and component-level documentation.
+- [x] Implement Math input with MathLive.
+- [x] Implement static mathematical rendering with KaTeX where appropriate.
+- [x] Implement Text and Result components.
+- [x] Define consistent component styling, themes, sizing, and accessibility behavior.
+- [x] Publish runnable examples and component-level documentation.
 
 **Exit criteria:** users can install MathBlocks and use the first components through a small Python API.
 
