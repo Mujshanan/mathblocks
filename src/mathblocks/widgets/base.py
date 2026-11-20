@@ -55,9 +55,9 @@ class MathBlocksWidget(anywidget.AnyWidget):
     state = traitlets.Dict(default_value=make_state_envelope({})).tag(sync=True)
 
     def __init__(self, **kwargs: Any) -> None:
+        self._restoring_state = False
         super().__init__(**kwargs)
         self._accepted_state = deepcopy(self.state)
-        self._restoring_state = False
 
     @traitlets.validate("state")
     def _validate_state(self, proposal: dict[str, Any]) -> dict[str, Any]:
