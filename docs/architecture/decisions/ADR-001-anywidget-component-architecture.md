@@ -1,6 +1,6 @@
 # ADR-001: AnyWidget component architecture
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-11-20
 - **Decision owners:** MathBlocks maintainers
 - **Scope:** Public Python API, widget ownership, frontend lifecycle, and host adapters
