@@ -28,13 +28,13 @@ function normalizeJsonValue(
   }
   if (Array.isArray(value)) {
     if (ancestors.has(value)) throw new TypeError(`${path} contains a circular reference.`);
-    if (Object.getOwnPropertySymbols(value).length > 0 || Reflect.ownKeys(value).length !== value.length + 1) {
-      throw new TypeError(`${path} contains non-JSON array properties.`);
-    }
     // JSON.stringify silently converts sparse slots to null and ignores custom
     // array properties. Reject both so the wire payload is never changed.
     if (Object.keys(value).length !== value.length) {
       throw new TypeError(`${path} must be a dense array without extra properties.`);
+    }
+    if (Object.getOwnPropertySymbols(value).length > 0 || Reflect.ownKeys(value).length !== value.length + 1) {
+      throw new TypeError(`${path} contains non-JSON array properties.`);
     }
     ancestors.add(value);
     const normalized: JsonValue[] = [];
