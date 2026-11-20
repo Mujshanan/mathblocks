@@ -13,7 +13,6 @@
     "typescript": "^5.7.0"
   },
   "dependencies": {
-    "anywidget": "^0.9.0",
     "katex": "^0.16.11",
     "mathlive": "^0.104.0"
   }
