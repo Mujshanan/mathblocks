@@ -68,7 +68,7 @@ export function renderMathBlocks(root: HTMLElement, model: AnyWidgetModel): () =
     } else if (component === "diagram") {
       mountDiagram(root, {
         value: diagramValue(data.value), readOnly: data.read_only === true, label,
-        onChange: (value) => publish({ ...currentData, value } as JsonObject),
+        onChange: (value) => publish({ ...currentData, value } as unknown as JsonObject),
       });
     } else {
       root.replaceChildren();
