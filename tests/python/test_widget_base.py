@@ -19,6 +19,14 @@ def test_widget_exposes_versioned_anywidget_state() -> None:
     }
 
 
+def test_widget_can_be_initialized_with_explicit_state() -> None:
+    initial = make_state_envelope({"value": "provided"}, revision=4, actor="python")
+    widget = MathBlocksWidget(state=initial)
+
+    assert widget.component_state == {"value": "provided"}
+    assert widget.revision == 4
+
+
 def test_python_updates_publish_new_detached_revisions() -> None:
     widget = MathBlocksWidget()
 
