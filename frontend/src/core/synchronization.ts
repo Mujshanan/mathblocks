@@ -159,6 +159,9 @@ export function commitState(
     throw new TypeError("Frontend updates require a non-Python actor ID.");
   }
   const current = readStateEnvelope(model.get("state"));
+  if (current.revision >= Number.MAX_SAFE_INTEGER) {
+    throw new RangeError("MathBlocks state revision has reached its safe integer limit.");
+  }
   const next: ComponentStateEnvelope = {
     schema_version: STATE_SCHEMA_VERSION,
     revision: current.revision + 1,
