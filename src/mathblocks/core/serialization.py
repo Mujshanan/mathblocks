@@ -95,7 +95,11 @@ def validate_state_envelope(value: Any) -> dict[str, Any]:
             "State envelope must contain exactly: schema_version, revision, actor, data."
         )
     schema_version = value["schema_version"]
-    if isinstance(schema_version, bool) or schema_version != SCHEMA_VERSION:
+    if (
+        isinstance(schema_version, bool)
+        or not isinstance(schema_version, int)
+        or schema_version != SCHEMA_VERSION
+    ):
         raise StateContractError(
             f"Unsupported state schema version: {schema_version!r}; "
             f"expected {SCHEMA_VERSION}."
