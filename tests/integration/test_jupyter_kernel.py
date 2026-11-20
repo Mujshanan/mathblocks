@@ -65,8 +65,8 @@ def test_notebook_displays_multiple_views_of_one_widget_model() -> None:
         [
             (
                 "from IPython.display import display\n"
-                "from mathblocks import Matrix\n"
-                "widget = Matrix([[1, 2], [3, 4]], label='Shared matrix')\n"
+                "from mathblocks.widgets import MathBlocksWidget\n"
+                "widget = MathBlocksWidget()\n"
                 "display(widget)\n"
                 "display(widget)"
             ),
@@ -91,8 +91,8 @@ def test_notebook_kernel_preserves_widget_state_between_cells() -> None:
     notebook = _execute_notebook(
         [
             (
-                "from mathblocks import Text\n"
-                "widget = Text('initial')\n"
+                "from mathblocks.widgets import MathBlocksWidget\n"
+                "widget = MathBlocksWidget()\n"
                 "widget.set_component_state({**widget.component_state, "
                 "'value': 'updated in kernel'})"
             ),
