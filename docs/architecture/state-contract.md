@@ -31,7 +31,11 @@ The Python-side revision and conflict rules live in the framework-independent
 envelopes; it does not define component state semantics.
 
 Python exposes `widget.component_state` as a detached convenience property.
-Assigning it publishes a new Python-originated revision:
+Assigning it publishes a new Python-originated revision. The synchronized
+`widget.state` envelope is recursively read-only in Python: mutating nested
+dictionaries or lists in place is rejected because Traitlets cannot observe
+nested mutations. Use `component_state` or `set_component_state()` to publish
+an update:
 
 ```python
 widget.component_state = {"value": 12}
