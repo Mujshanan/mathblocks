@@ -55,10 +55,16 @@ jobs:
         run: pytest
       - name: Build wheel and source distribution
         run: python -m build
+      - name: Verify release artifact contents and metadata
+        run: python scripts/verify_release_artifacts.py
       - name: Smoke-test built wheel
         run: |
           python -m pip install --no-deps --target /tmp/mathblocks-wheel dist/*.whl
           PYTHONPATH=/tmp/mathblocks-wheel python -c "from pathlib import Path; import mathblocks; from mathblocks.widgets import MathBlocksWidget; p = Path(mathblocks.__file__).parent / 'static'; assert (p / 'index.js').is_file(); assert (p / 'frontend.css').is_file(); w = MathBlocksWidget(); assert 'render' in w._esm; print('wheel import and bundled assets: OK')"
+      - name: Smoke-test source distribution without frontend build
+        run: |
+          python -m pip install --no-deps --target /tmp/mathblocks-sdist dist/*.tar.gz
+          PYTHONPATH=/tmp/mathblocks-sdist python -c "from pathlib import Path; import mathblocks; from mathblocks.widgets import MathBlocksWidget; p = Path(mathblocks.__file__).parent / 'static'; assert (p / 'index.js').is_file(); assert (p / 'frontend.css').is_file(); w = MathBlocksWidget(); assert 'render' in w._esm; print('sdist install and bundled assets: OK')"
 
   marimo:
     name: Marimo host integration
