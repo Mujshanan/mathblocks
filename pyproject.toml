@@ -25,7 +25,7 @@ packages = ["src/mathblocks"]
 "src/mathblocks/static" = "mathblocks/static"
 
 [tool.pytest.ini_options]
- testpaths = ["tests/python", "tests/integration"]
+testpaths = ["tests/python", "tests/integration"]
 
 [tool.ruff]
 line-length = 100
