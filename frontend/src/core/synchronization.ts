@@ -21,17 +21,29 @@ function normalizeJsonValue(
     return value;
   }
   if (typeof value === "number") {
-    if (!Number.isFinite(value) || !Number.isSafeInteger(value) && Number.isInteger(value)) {
+    if (!Number.isFinite(value) || (!Number.isSafeInteger(value) && Number.isInteger(value))) {
       throw new TypeError(`${path} contains a non-finite or unsafe integer.`);
     }
     return value;
   }
   if (Array.isArray(value)) {
     if (ancestors.has(value)) throw new TypeError(`${path} contains a circular reference.`);
+    if (Object.getOwnPropertySymbols(value).length > 0) {
+      throw new TypeError(`${path} contains symbol-keyed array properties.`);
+    }
+    // JSON.stringify silently converts sparse slots to null and ignores custom
+    // array properties. Reject both so the wire payload is never changed.
+    if (Object.keys(value).length !== value.length) {
+      throw new TypeError(`${path} must be a dense array without extra properties.`);
+    }
     ancestors.add(value);
-    const normalized = value.map((item, index) =>
-      normalizeJsonValue(item, ancestors, `${path}[${index}]`),
-    );
+    const normalized: JsonValue[] = [];
+    for (let index = 0; index < value.length; index += 1) {
+      if (!Object.prototype.hasOwnProperty.call(value, index)) {
+        throw new TypeError(`${path} contains a sparse array slot at index ${index}.`);
+      }
+      normalized.push(normalizeJsonValue(value[index], ancestors, `${path}[${index}]`));
+    }
     ancestors.delete(value);
     return normalized;
   }
@@ -41,10 +53,17 @@ function normalizeJsonValue(
       throw new TypeError(`${path} must contain only plain JSON objects.`);
     }
     if (ancestors.has(value)) throw new TypeError(`${path} contains a circular reference.`);
+    if (Object.getOwnPropertySymbols(value).length > 0) {
+      throw new TypeError(`${path} contains symbol-keyed object properties.`);
+    }
     ancestors.add(value);
     const normalized = Object.create(null) as JsonObject;
-    for (const [key, item] of Object.entries(value)) {
-      normalized[key] = normalizeJsonValue(item, ancestors, `${path}.${key}`);
+    for (const key of Object.keys(value)) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      if (!descriptor?.enumerable || !("value" in descriptor)) {
+        throw new TypeError(`${path}.${key} must be an enumerable data property.`);
+      }
+      normalized[key] = normalizeJsonValue(descriptor.value, ancestors, `${path}.${key}`);
     }
     ancestors.delete(value);
     return normalized;
