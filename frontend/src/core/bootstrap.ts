@@ -6,13 +6,13 @@ const SCHEMA_VERSION = 1;
 export function renderMathBlocks({ model, el }: AnyWidgetRenderContext): () => void {
   el.replaceChildren(); const root = document.createElement("div"); root.className = "mathblocks-root";
   root.setAttribute("data-mathblocks", "true"); el.append(root);
-  let destroyed = false; let cleanup: (() => void) | undefined;
+  let destroyed = false; let cleanup: (() => void) | undefined; let localUpdate: unknown;
   const render = () => {
     if (destroyed) return; cleanup?.(); cleanup = undefined;
     const raw = model.get("state"); const state = isComponentState(raw) ? raw : fallbackState(raw);
     const onChange = (value: string) => {
       const current = model.get("state"); const latest = isComponentState(current) ? current : state;
-      model.set("state", { ...latest, value }); model.save_changes();
+      const next = { ...latest, value }; localUpdate = next; model.set("state", next); model.save_changes();
     };
     if (state.type === "math") {
       cleanup = mountMath(root, { value: String(state.value ?? ""), readOnly: Boolean(state.readOnly),
@@ -26,7 +26,12 @@ export function renderMathBlocks({ model, el }: AnyWidgetRenderContext): () => v
         label: asString(state.label) });
     } else { root.textContent = "Unsupported MathBlocks component."; root.setAttribute("role", "status"); }
   };
-  const handleStateChange = () => render(); model.on("change:state", handleStateChange); render();
+  const handleStateChange = () => {
+    // Ignore our own synchronous model event: remounting would reset MathLive's cursor.
+    if (localUpdate !== undefined && model.get("state") === localUpdate) { localUpdate = undefined; return; }
+    render();
+  };
+  model.on("change:state", handleStateChange); render();
   return () => { destroyed = true; model.off("change:state", handleStateChange); cleanup?.(); root.remove(); };
 }
 function isComponentState(value: unknown): value is ComponentState<Record<string, unknown>> {
