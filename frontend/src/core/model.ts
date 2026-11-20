@@ -1,5 +1,5 @@
-/** Shared frontend model contracts. Keep wire formats explicit and versioned. */
-export interface ComponentState<T = unknown> {
-  schemaVersion: number;
-  value: T;
+/** Synced AnyWidget model fields shared by Python and the frontend. */
+export interface ComponentModelState<T = unknown> {
+  schema_version: number;
+  component_state: T;
 }
