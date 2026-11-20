@@ -1,2 +1,294 @@
-# mathblocks
-A Python-based interactive mathematical workspace for creating, editing, organizing, and executing calculation worksheets. Built with TypeScript and AnyWidget, with support for mathematical expressions, text, results, matrices, programming, and engineering diagrams.Tagline: A works
+# MathBlocks
+
+**Reusable mathematical interface components for Python.**
+
+MathBlocks is a Python-first toolkit for building interactive mathematical and scientific interfaces. Its components are implemented with TypeScript and distributed inside the Python package through [AnyWidget](https://anywidget.dev/).
+
+The project takes inspiration from component libraries such as WigglyStuff: Python provides a clear, composable API while the browser handles rich interaction and rendering.
+
+> **Project status:** Early architecture and scaffolding. The APIs and capabilities below describe the intended design; they are not all implemented yet.
+
+## Goals
+
+- Provide reusable, focused mathematical widgets with a Python-first API.
+- Keep the TypeScript frontend bundled with the Python distribution.
+- Work in Jupyter and other AnyWidget-compatible environments.
+- Offer an optional Marimo integration without making Marimo a core dependency.
+- Keep mathematical components independently testable and composable.
+- Separate persistent/domain data, transient UI state, and computed results.
+- Make it straightforward to add new component types.
+
+## Installation
+
+Once MathBlocks is published on PyPI, install it with one command:
+
+```bash
+pip install mathblocks
+```
+
+No Node.js, npm, or frontend build tools will be required by end users. The published wheel will include the compiled JavaScript and CSS assets.
+
+For now, while the package is under development, install directly from GitHub:
+
+```bash
+pip install git+https://github.com/Mujshanan/mathblocks.git
+```
+
+## Quick start
+
+The following is the intended API. It will become usable as the corresponding components are implemented.
+
+```python
+from mathblocks import Math, Matrix
+
+equation = Math(r"x^2 + y^2 = z^2")
+matrix = Matrix([[1, 2], [3, 4]])
+
+equation
+matrix
+```
+
+In Jupyter, AnyWidget components are displayed by returning or displaying the widget. In Marimo, the optional adapter is intended to provide a concise integration:
+
+```python
+import marimo as mo
+from mathblocks import Math
+
+equation = Math(r"\int_0^1 x^2\,dx")
+mo.ui.anywidget(equation.widget)
+```
+
+The exact public API will be documented when the first stable component contracts are implemented.
+
+## Planned components
+
+| Component | Purpose |
+|---|---|
+| Math | Editable mathematical notation and expression input |
+| Text | Rich explanatory text and annotations |
+| Result | Display of computed values, units, and diagnostics |
+| Matrix | Interactive matrix and vector editing |
+| Graph | Mathematical plots and graph interaction |
+| Diagram | Extensible diagram and engineering-visualization surface |
+
+Components should remain independently useful. A future worksheet or larger application may compose them, but MathBlocks is not limited to a single worksheet interface.
+
+## Architecture
+
+MathBlocks is distributed as **one Python package** containing the compiled frontend assets.
+
+```text
+Python application / notebook
+          |
+          v
+    MathBlocks API
+          |
+          v
+     AnyWidget adapter
+          |
+          v
+ Bundled TypeScript frontend
+          |
+          +-- Editors
+          +-- Renderers
+          +-- Interaction
+          +-- Component styles
+```
+
+### Responsibilities
+
+- **Python core:** public component APIs, domain models, validation, serialization, and Python-side state.
+- **Component layer:** focused Python wrappers and component-specific contracts.
+- **AnyWidget adapter:** transport and lifecycle integration between Python and the browser.
+- **TypeScript frontend:** editing, rendering, keyboard interaction, and local presentation state.
+- **Host integrations:** optional conveniences for environments such as Marimo. Host-specific behavior must not leak into the core package.
+
+### State ownership
+
+Keep three categories distinct:
+
+1. **Domain state** — component data that Python users expect to inspect, serialize, or persist.
+2. **Transient UI state** — focus, cursor position, selection, hover, and in-progress editing details.
+3. **Computed state** — results, validation messages, and other outputs derived from inputs.
+
+Do not use the DOM as the source of truth. Avoid syncing every keystroke or animation frame to Python when local frontend state is sufficient. External Python-side changes must still propagate to the frontend, and asynchronous responses must not overwrite newer edits.
+
+## Repository structure
+
+```text
+mathblocks/
+├── README.md
+├── LICENSE
+├── pyproject.toml
+├── package.json
+├── tsconfig.json
+├── .gitignore
+├── .editorconfig
+├── docs/
+│   ├── README.md
+│   ├── architecture/
+│   ├── development/
+│   ├── components/
+│   └── api/
+├── src/
+│   └── mathblocks/
+│       ├── __init__.py
+│       ├── _version.py
+│       ├── core/
+│       │   ├── models.py
+│       │   ├── state.py
+│       │   ├── events.py
+│       │   └── serialization.py
+│       ├── components/
+│       │   ├── math.py
+│       │   ├── text.py
+│       │   ├── result.py
+│       │   ├── matrix.py
+│       │   ├── graph.py
+│       │   └── diagram.py
+│       ├── widgets/
+│       │   ├── __init__.py
+│       │   └── base.py
+│       ├── integrations/
+│       │   └── marimo.py
+│       └── static/
+├── frontend/
+│   └── src/
+│       ├── index.ts
+│       ├── core/
+│       ├── components/
+│       │   ├── math/
+│       │   ├── text/
+│       │   ├── result/
+│       │   ├── matrix/
+│       │   ├── graph/
+│       │   └── diagram/
+│       ├── editors/
+│       ├── rendering/
+│       ├── interaction/
+│       ├── synchronization/
+│       ├── styles/
+│       └── utils/
+├── tests/
+│   ├── python/
+│   ├── frontend/
+│   └── integration/
+├── examples/
+└── scripts/
+```
+
+The Python package lives under `src/mathblocks`. TypeScript source lives under `frontend/src`; the build copies bundled assets into `src/mathblocks/static`, which is included in the wheel. Generated bundles should not be edited by hand.
+
+## Development setup
+
+### Requirements
+
+- Python 3.11 or newer
+- Node.js and npm (development/build only)
+
+### Install development dependencies
+
+```bash
+git clone https://github.com/Mujshanan/mathblocks.git
+cd mathblocks
+python -m venv .venv
+# Activate the environment, then:
+python -m pip install -e ".[dev]"
+npm install
+```
+
+### Build the frontend
+
+```bash
+npm run build
+```
+
+### Run tests
+
+```bash
+pytest
+npm test
+```
+
+Build and test commands will be refined as the initial tooling and CI workflows are added.
+
+## Development and implementation plan
+
+Work is organized into milestones. Each milestone should have a working demonstration, tests, and documented contracts before the next layer depends on it.
+
+### Phase 0 — Project foundation
+
+- [ ] Establish package metadata, supported Python versions, license, and development tooling.
+- [ ] Set up TypeScript compilation and bundle assets into the Python package.
+- [ ] Add CI for Python tests, frontend tests, type checking, and package builds.
+- [ ] Define versioning and compatibility policy for Python APIs and frontend assets.
+
+**Exit criteria:** a clean environment can build and install the package, and the installed package can load a minimal AnyWidget with its bundled frontend.
+
+### Phase 1 — AnyWidget foundation
+
+- [ ] Implement a small reusable Python widget base.
+- [ ] Define the Python-to-frontend data contract and serialization rules.
+- [ ] Implement frontend initialization, update handling, and deterministic cleanup.
+- [ ] Handle Python-originated updates and frontend-originated updates.
+- [ ] Test multiple widget instances and multiple views without shared mutable state.
+
+**Exit criteria:** a minimal interactive component synchronizes reliably in Jupyter without requiring users to build frontend assets.
+
+### Phase 2 — First components
+
+- [ ] Implement Math input with MathLive.
+- [ ] Implement static mathematical rendering with KaTeX where appropriate.
+- [ ] Implement Text and Result components.
+- [ ] Define consistent component styling, themes, sizing, and accessibility behavior.
+- [ ] Publish runnable examples and component-level documentation.
+
+**Exit criteria:** users can install MathBlocks and use the first components through a small Python API.
+
+### Phase 3 — Structured and visual components
+
+- [ ] Implement Matrix and Vector editing, including rectangular validation and clipboard support.
+- [ ] Implement Graph plotting and interaction contracts.
+- [ ] Implement the Diagram surface and a portable export format.
+- [ ] Add validation, error display, and serialization tests for each component.
+
+**Exit criteria:** structured data and visual components work independently and compose with the initial components.
+
+### Phase 4 — Host integrations
+
+- [ ] Verify standard Jupyter integration.
+- [ ] Add an optional Marimo convenience adapter.
+- [ ] Test asset loading and lifecycle behavior in supported hosts.
+- [ ] Keep host-specific dependencies optional.
+
+**Exit criteria:** the same component API works across documented AnyWidget hosts, with host adapters remaining thin.
+
+### Phase 5 — Stability and release
+
+- [ ] Finalize public API and compatibility guarantees.
+- [ ] Add documentation, examples, and migration guidance.
+- [ ] Test source distributions and wheels in clean environments.
+- [ ] Publish to PyPI and document the one-line installation.
+- [ ] Establish issue templates and contribution guidance.
+
+**Exit criteria:** a user can install from PyPI, import a documented component, and use it without Node.js or a separate frontend setup.
+
+## Engineering principles
+
+1. **Python-first, not Python-only:** Python is the user-facing API; TypeScript provides rich browser interaction.
+2. **One installable distribution:** compiled frontend assets ship inside the Python package.
+3. **Small components, shared foundations:** components are independent at the API level but reuse common lifecycle, styling, and synchronization infrastructure.
+4. **Explicit state contracts:** distinguish domain data, transient interaction, and computed output.
+5. **Host independence:** AnyWidget is the browser integration layer; Marimo is an optional host integration.
+6. **Accessible interaction:** keyboard navigation, focus management, semantic controls, and readable diagnostics are part of component quality.
+7. **Test behavior, not just rendering:** cover synchronization, lifecycle, serialization, edge cases, and host integration.
+
+## Contributing
+
+The project is in its early development stage. Start by reading the architecture and development notes in `docs/`. Before adding a component, define its Python API, data contract, frontend responsibilities, serialization behavior, and tests.
+
+Please open an issue to discuss substantial API or architectural changes before submitting a pull request.
+
+## License
+
+The project license will be specified before the first public release.
