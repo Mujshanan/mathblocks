@@ -68,8 +68,13 @@ def make_state_envelope(
     actor: str = PYTHON_ACTOR,
 ) -> dict[str, Any]:
     """Build a detached version-1 state envelope."""
-    if isinstance(revision, bool) or not isinstance(revision, int) or revision < 0:
-        raise StateContractError("State revision must be a non-negative integer.")
+    if (
+        isinstance(revision, bool)
+        or not isinstance(revision, int)
+        or revision < 0
+        or revision > MAX_SAFE_INTEGER
+    ):
+        raise StateContractError("State revision must be a non-negative safe integer.")
     if not isinstance(actor, str) or not actor.strip():
         raise StateContractError("State actor must be a non-empty string.")
     return {
