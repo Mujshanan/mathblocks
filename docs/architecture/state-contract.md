@@ -26,6 +26,10 @@ AnyWidget synchronizes one trait named `state`. It is an atomic envelope:
 The envelope is deliberately a single synchronized trait. Sending payload and
 revision as separate traits could expose intermediate combinations to observers.
 
+The Python-side revision and conflict rules live in the framework-independent
+`mathblocks.core.StateStore`. The AnyWidget adapter only transports accepted
+envelopes; it does not define component state semantics.
+
 Python exposes `widget.component_state` as a detached convenience property.
 Assigning it publishes a new Python-originated revision:
 
@@ -81,7 +85,8 @@ previous accepted state is restored.
   domain inputs unless a component contract explicitly declares it persisted.
 
 The DOM is a rendering target, never the source of truth. A view subscribes to
-model changes and returns an unsubscribe function. Its cleanup removes model
+model changes and returns an unsubscribe function. AnyWidget's per-view
+AbortSignal invokes that cleanup when the view is removed, removing model
 listeners and DOM event handlers. Each widget instance owns its own state;
 each rendered view owns its own transient UI state and actor identity.
 
