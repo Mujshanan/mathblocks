@@ -4,7 +4,7 @@
 - **Date:** 2026-11-20
 - **Decision owners:** MathBlocks maintainers
 - **Scope:** Python–frontend state ownership, synchronization, update consistency, component identity, and widget/view lifecycle
-- **Related decisions:** ADR-001 (AnyWidget Component Architecture), ADR-002 (Canonical Mathematical Expression Representation), ADR-003 (Computation Boundary)
+- **Related decisions:** ADR-001 (AnyWidget Component Architecture), ADR-002 (Canonical Mathematical Expression Representation), ADR-003 (proposed computation boundary; expression evaluation only)
 
 ## Context
 
@@ -204,7 +204,6 @@ If a view encounters malformed or unsupported synchronized state, it MUST NOT si
 
 - [ADR-001: AnyWidget component architecture](ADR-001-anywidget-component-architecture.md)
 - [ADR-002: Canonical mathematical expression representation](ADR-002-expression-representation.md)
-- [ADR-003: Computation boundary](ADR-003-computation-boundary.md)
 - [Python–frontend state contract](../state-contract.md)
 - [AnyWidget documentation](https://anywidget.dev/)
 - [Jotai documentation](https://jotai.org/)
