@@ -145,6 +145,19 @@ describe("AnyWidget state synchronization", () => {
     );
   });
 
+  it("rejects non-finite, unsafe, and cyclic payload values", () => {
+    const model = new FakeModel(initialState);
+
+    expect(() => commitState(model, { value: Number.NaN }, "view:test")).toThrow();
+    expect(() => commitState(model, { value: 2 ** 53 }, "view:test")).toThrow();
+
+    const cyclic: Record<string, unknown> = {};
+    cyclic.self = cyclic;
+    expect(() =>
+      commitState(model, cyclic as { [key: string]: never }, "view:test"),
+    ).toThrow("circular reference");
+  });
+
   it("resolves equal-revision conflicts deterministically with Python priority", () => {
     const python: ComponentStateEnvelope = {
       schema_version: 1,
