@@ -28,8 +28,8 @@ function normalizeJsonValue(
   }
   if (Array.isArray(value)) {
     if (ancestors.has(value)) throw new TypeError(`${path} contains a circular reference.`);
-    if (Object.getOwnPropertySymbols(value).length > 0) {
-      throw new TypeError(`${path} contains symbol-keyed array properties.`);
+    if (Object.getOwnPropertySymbols(value).length > 0 || Reflect.ownKeys(value).length !== value.length + 1) {
+      throw new TypeError(`${path} contains non-JSON array properties.`);
     }
     // JSON.stringify silently converts sparse slots to null and ignores custom
     // array properties. Reject both so the wire payload is never changed.
@@ -53,8 +53,8 @@ function normalizeJsonValue(
       throw new TypeError(`${path} must contain only plain JSON objects.`);
     }
     if (ancestors.has(value)) throw new TypeError(`${path} contains a circular reference.`);
-    if (Object.getOwnPropertySymbols(value).length > 0) {
-      throw new TypeError(`${path} contains symbol-keyed object properties.`);
+    if (Reflect.ownKeys(value).length !== Object.keys(value).length) {
+      throw new TypeError(`${path} contains non-enumerable or symbol-keyed properties.`);
     }
     ancestors.add(value);
     const normalized = Object.create(null) as JsonObject;
