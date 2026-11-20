@@ -184,7 +184,7 @@ The Python package lives under `src/mathblocks`. TypeScript source lives under `
 ### Requirements
 
 - Python 3.11 or newer
-- Node.js and npm (development/build only)
+- Node.js 22.12 or newer and npm (development/build only)
 
 ### Install development dependencies
 
@@ -197,10 +197,28 @@ python -m pip install -e ".[dev]"
 npm install
 ```
 
+### Frontend dependencies
+
+The frontend toolchain is managed in `package.json`:
+
+| Dependency | Role |
+|---|---|
+| TypeScript | Typed frontend implementation |
+| Vite | Development server and production bundler |
+| MathLive | Interactive mathematical input |
+| KaTeX | Static mathematical rendering |
+| Jotai (vanilla store) | Isolated per-widget frontend state |
+| Vitest | Frontend unit tests |
+
+MathLive and KaTeX serve different purposes: MathLive handles editable math fields; KaTeX renders non-editable expressions. Jotai is used through its framework-independent vanilla store, not React. AnyWidget is a Python runtime dependency and is installed automatically by pip.
+
+
 ### Build the frontend
 
 ```bash
-npm run build
+npm run dev       # Start the frontend development server
+npm run build     # Bundle frontend assets into src/mathblocks/static/
+npm run typecheck
 ```
 
 ### Run tests
