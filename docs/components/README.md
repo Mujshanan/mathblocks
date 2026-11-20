@@ -1,3 +1,5 @@
-# Component specifications
+# Components
 
-Each component specification should define its Python API, domain data schema, transient UI state, computed outputs, frontend behavior, serialization, accessibility, and tests.
+- [First components](first-components.md) — Math input/static rendering, Text annotations, and Result output.
+
+Matrix, Vector, Graph, and Diagram are planned for later milestones.
