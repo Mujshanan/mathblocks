@@ -161,7 +161,8 @@ mathblocks/
 │       ├── core/
 │       │   ├── bootstrap.ts
 │       │   ├── model.ts
-│       │   └── store.ts
+│       │   ├── store.ts
+│       │   └── synchronization.ts
 │       ├── components/
 │       │   ├── math/
 │       │   ├── text/
@@ -181,6 +182,9 @@ mathblocks/
 │   ├── frontend/
 │   │   └── store.test.ts
 │   ├── python/
+│   │   ├── test_package_import.py
+│   │   ├── test_state_store.py
+│   │   └── test_widget_base.py
 │   └── integration/
 ├── examples/
 └── scripts/
