@@ -1,4 +1,6 @@
 """Runnable examples for MathBlocks Phase 2 components."""
+from IPython.display import display
+
 from mathblocks import Math, Result, Text
 
 # Editable LaTeX input (MathLive in an AnyWidget-compatible notebook).
@@ -17,8 +19,6 @@ note = Text(
 # Computed value, unit, and optional diagnostics.
 result = Result(24.6, unit="MPa", diagnostics=["Below the specified design limit"], label="Stress")
 
-# In Jupyter, the final expression in a cell is displayed automatically.
-equation
-identity
-note
-result
+# Display each widget explicitly so this also works when run as a script in Jupyter.
+for component in (equation, identity, note, result):
+    display(component)
