@@ -89,10 +89,17 @@ export default {
   render({
     el,
     model,
+    signal,
   }: {
     el: HTMLElement;
     model: AnyWidgetModel;
-  }): () => void {
-    return renderMathBlocks(el, model);
+    signal: AbortSignal;
+  }): void {
+    const cleanup = renderMathBlocks(el, model);
+    if (signal.aborted) {
+      cleanup();
+      return;
+    }
+    signal.addEventListener("abort", cleanup, { once: true });
   },
 };
