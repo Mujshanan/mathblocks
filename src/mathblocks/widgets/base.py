@@ -1,24 +1,18 @@
 """Shared AnyWidget adapter base.
 
-AnyWidget owns transport and view lifecycle. MathBlocks owns the state contract.
+AnyWidget owns transport and view lifecycle. MathBlocks core owns state rules.
 """
 
 from __future__ import annotations
 
-from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
 import anywidget
 import traitlets
 
-from mathblocks.core.serialization import (
-    PYTHON_ACTOR,
-    StateContractError,
-    compare_state_versions,
-    make_state_envelope,
-    validate_state_envelope,
-)
+from mathblocks.core.serialization import StateContractError, validate_state_envelope
+from mathblocks.core.state import StateStore
 
 
 _STATIC_DIR = Path(__file__).resolve().parents[1] / "static"
@@ -52,12 +46,12 @@ class MathBlocksWidget(anywidget.AnyWidget):
     _esm = _read_asset("index.js", _FALLBACK_ESM)
     _css = _read_asset("frontend.css")
 
-    state = traitlets.Dict(default_value=make_state_envelope({})).tag(sync=True)
+    state = traitlets.Dict(default_value=StateStore().envelope).tag(sync=True)
 
     def __init__(self, **kwargs: Any) -> None:
-        self._restoring_state = False
         super().__init__(**kwargs)
-        self._accepted_state = deepcopy(self.state)
+        self._state_store = StateStore(self.state)
+        self._restoring_state = False
 
     @traitlets.validate("state")
     def _validate_state(self, proposal: dict[str, Any]) -> dict[str, Any]:
@@ -68,21 +62,21 @@ class MathBlocksWidget(anywidget.AnyWidget):
 
     @traitlets.observe("state")
     def _on_state_change(self, change: dict[str, Any]) -> None:
-        if self._restoring_state:
+        if self._restoring_state or not hasattr(self, "_state_store"):
             return
+
         incoming = change["new"]
-        accepted = getattr(self, "_accepted_state", None)
-        if accepted is None:
-            self._accepted_state = deepcopy(incoming)
+        accepted_before = self._state_store.envelope
+        if self._state_store.accept(incoming):
             return
-        if compare_state_versions(incoming, accepted) <= 0:
-            self._restoring_state = True
-            try:
-                self.set_trait("state", deepcopy(accepted))
-            finally:
-                self._restoring_state = False
+        if incoming == accepted_before:
             return
-        self._accepted_state = deepcopy(incoming)
+
+        self._restoring_state = True
+        try:
+            self.set_trait("state", accepted_before)
+        finally:
+            self._restoring_state = False
 
     @property
     def schema_version(self) -> int:
@@ -92,12 +86,12 @@ class MathBlocksWidget(anywidget.AnyWidget):
     @property
     def revision(self) -> int:
         """Current accepted state revision."""
-        return self.state["revision"]
+        return self._state_store.revision
 
     @property
     def component_state(self) -> dict[str, Any]:
         """Detached JSON-compatible component data."""
-        return deepcopy(self.state["data"])
+        return self._state_store.data
 
     @component_state.setter
     def component_state(self, value: dict[str, Any]) -> None:
@@ -105,8 +99,4 @@ class MathBlocksWidget(anywidget.AnyWidget):
 
     def set_component_state(self, value: dict[str, Any]) -> None:
         """Replace component data and publish a new Python-originated revision."""
-        self.state = make_state_envelope(
-            value,
-            revision=self._accepted_state["revision"] + 1,
-            actor=PYTHON_ACTOR,
-        )
+        self.state = self._state_store.create_update(value, actor="python")
