@@ -175,4 +175,40 @@ describe("AnyWidget state synchronization", () => {
     expect(compareStateVersions(python, view)).toBeGreaterThan(0);
     expect(compareStateVersions(view, python)).toBeLessThan(0);
   });
+
+  it("rejects values that JSON serialization would silently change or omit", () => {
+    const model = new FakeModel(initialState);
+
+    expect(() => commitState(model, { value: undefined } as never, "view:test")).toThrow(
+      "not JSON-compatible",
+    );
+
+    const sparse = new Array(2);
+    sparse[1] = "present";
+    expect(() => commitState(model, { value: sparse }, "view:test")).toThrow(
+      "dense array",
+    );
+
+    const symbolKeyed = { value: 1, [Symbol("hidden")]: 2 };
+    expect(() => commitState(model, symbolKeyed, "view:test")).toThrow(
+      "symbol-keyed",
+    );
+
+    const accessor = Object.defineProperty({}, "value", {
+      enumerable: true,
+      get: () => 1,
+    });
+    expect(() => commitState(model, accessor, "view:test")).toThrow(
+      "data property",
+    );
+
+    const hidden = Object.defineProperty({ value: 1 }, "secret", {
+      enumerable: false,
+      value: "not serialized",
+    });
+    expect(() => commitState(model, hidden, "view:test")).toThrow(
+      "non-enumerable",
+    );
+  });
+
 });
