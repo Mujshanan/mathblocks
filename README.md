@@ -26,7 +26,7 @@ Once MathBlocks is published on PyPI, install it with one command:
 pip install mathblocks
 ```
 
-No Node.js, npm, or frontend build tools will be required by end users. The published wheel will include the compiled JavaScript and CSS assets.
+No Node.js, npm, or frontend build tools will be required by end users. The published wheel will include the compiled frontend assets.
 
 For now, while the package is under development, install directly from GitHub:
 
@@ -291,4 +291,4 @@ Please open an issue to discuss substantial API or architectural changes before 
 
 ## License
 
-The project license will be specified before the first public release.
+MathBlocks is released under the MIT License. See [LICENSE](LICENSE).
