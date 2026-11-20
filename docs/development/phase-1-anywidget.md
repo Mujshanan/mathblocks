@@ -13,11 +13,13 @@ component-specific mathematical behavior.
 - Frontend model subscriptions and frontend-originated updates.
 - Deterministic whole-state conflict resolution for concurrent views.
 - Per-view actor identities and isolated frontend view lifecycle.
-- Explicit cleanup of model subscriptions and DOM event handlers.
+- Explicit cleanup of model subscriptions and DOM event handlers through AnyWidget's per-view AbortSignal.
 - Python and TypeScript tests for validation, synchronization, conflicts,
   multiple views, multiple widget instances, and cleanup.
 
 ## Run the demonstration
+
+MathBlocks requires AnyWidget 0.11 or newer for its AbortSignal-based view lifecycle.
 
 Build the frontend and install the package in editable mode:
 
