@@ -198,7 +198,7 @@ describe("AnyWidget state synchronization", () => {
       enumerable: true,
       get: () => 1,
     });
-    expect(() => commitState(model, accessor, "view:test")).toThrow(
+    expect(() => commitState(model, accessor as never, "view:test")).toThrow(
       "data property",
     );
 
