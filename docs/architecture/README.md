@@ -10,6 +10,10 @@ MathBlocks is a Python-first AnyWidget component library. Architecture decisions
 - [ADR-004: State synchronization and component lifecycle](decisions/ADR-004-state-synchronization-and-lifecycle.md)
 - [ADR-005: Component identity, document model, and persistence](decisions/ADR-005-component-identity-document-model-and-persistence.md)
 
+## Implementation tracking
+
+- [ADR-to-implementation traceability matrix](implementation-traceability.md)
+
 ## Existing contracts
 
 - [Python–frontend state contract](state-contract.md)
